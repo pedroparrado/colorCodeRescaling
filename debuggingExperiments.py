@@ -53,7 +53,10 @@ code.plot(lattice=False,syndrome=False,splitting=True,cells=True)
 import copy
 
 nsteps=15
-code=ColorCode(1,.08)
+
+nq=32
+m=.5*np.log2(nq*1./18.)
+code=ColorCode(m,.08)
 code.noise()
 code.syndrome()
 plt.figure(1)
@@ -93,6 +96,9 @@ plt.legend()
 import copy
 nsteps=40
 nmeas=100
+
+nq=32
+m=.5*np.log2(nq*1./18.)
 ch=np.zeros(nsteps)
 ch2=np.zeros(nsteps)
 E=np.zeros(nsteps)
@@ -102,7 +108,7 @@ chp2=np.zeros(nsteps)
 Ep=np.zeros(nsteps)
 Ep2=np.zeros(nsteps)
 for j in range(nmeas):
-    code=ColorCode(1,.05)
+    code=ColorCode(m,.05)
     code.noise()
     code.syndrome()
     code2=copy.deepcopy(code)
