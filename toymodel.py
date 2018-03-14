@@ -78,47 +78,6 @@ print code.sp, "init at 0, soft"
 
 
 
-#%%
-
-#plot one history
-
-
-nsteps=15
-
-nq=32
-m=.5*np.log2(nq*1./18.)
-code=ColorCode(m,.08)
-code.noise()
-code.syndrome()
-plt.figure(1)
-#plt.clf()
-code.noise()
-code.syndrome()
-code2=copy.deepcopy(code)
-changes=np.zeros(nsteps)
-for i in range(nsteps):
-    T=0
-    c,t=code.resplit(1)
-    changes[i]+=c
-    T+=t
-    c,t=code.resplit(2)
-    changes[i]+=c
-    T+=t
-    c,t=code.resplit(0)
-    changes[i]+=c
-    T+=t
-changes2=np.zeros(nsteps)
-minen,bestplit=code.fullsplittester()
-for i in range(nsteps):
-    changes2[i],T=code2.resplit()
-plt.figure(2)
-plt.clf()
-plt.plot(changes2*1./float(T),'p',label="Randomized")
-plt.plot(changes*1./float(T),'p',label="Paralellized")
-plt.plot(range(nsteps),np.zeros(nsteps)+minen,'-.', label='Min Energy')
-plt.ylim(0,1)
-plt.legend()
-
 
 #%%
 
@@ -126,8 +85,9 @@ plt.legend()
 
 
 import copy
-nsteps=40
-nmeas=100
+nsteps=15
+nmeas=1000
+
 
 nq=32
 m=.5*np.log2(nq*1./18.)
@@ -206,38 +166,40 @@ for j in range(nmeas):
 
 ch=ch/nmeas
 ch2=ch2/nmeas
+ch3=ch3/nmeas
 E=E/nmeas
 E2=E2/nmeas
+E3=E3/nmeas
 chp=chp/nmeas
 chp2=chp2/nmeas
 Ep=Ep/nmeas
 Ep2=Ep2/nmeas
 plt.figure(3)
 plt.clf()
-plt.plot(ch2,'p',label="Randomized")
-plt.plot(ch3,'p',label="Init at 0")
-plt.plot(ch,'p',label="Paralellized")
-plt.plot(chp2,'d',label="Soft Randomized")
-plt.plot(chp,'d',label="Soft Paralellized")
+plt.plot(ch2,'p-',label="Randomized")
+plt.plot(ch3,'p-',label="Init at 0")
+plt.plot(ch,'p-',label="Paralellized")
+plt.plot(chp2,'d-',label="Soft Randomized")
+plt.plot(chp,'d-',label="Soft Paralellized")
 plt.title("Percentage of splitting changes")
 plt.ylim(0,1)
 plt.legend()
 plt.figure(4)
 plt.clf()
 plt.title("Percentage of splitting changes, log scale")
-plt.plot(np.log(ch2),'p',label="Randomized")
-plt.plot(np.log(ch3),'p',label="Init at 0")
-plt.plot(np.log(ch),'p',label="Paralellized")
-plt.plot(np.log(chp2),'d',label="Soft Randomized")
-plt.plot(np.log(chp),'d',label="Soft Paralellized")
+plt.plot(np.log(ch2),'p-',label="Randomized")
+plt.plot(np.log(ch3),'p-',label="Init at 0")
+plt.plot(np.log(ch),'p-',label="Paralellized")
+plt.plot(np.log(chp2),'d-',label="Soft Randomized")
+plt.plot(np.log(chp),'d-',label="Soft Paralellized")
 plt.legend()
 plt.figure(5)
 plt.clf()
-plt.plot(E2,'p',label="Randomized")
-plt.plot(E3,'p',label="Init at 0")
-plt.plot(E,'p',label="Paralellized")
-plt.plot(Ep2,'d',label="Soft Randomized")
-plt.plot(Ep,'d',label="Soft Paralellized")
+plt.plot(E2,'p-',label="Randomized")
+plt.plot(E3,'p-',label="Init at 0")
+plt.plot(E,'p-',label="Paralellized")
+plt.plot(Ep2,'d-',label="Soft Randomized")
+plt.plot(Ep,'d-',label="Soft Paralellized")
 plt.title("Energy after the splittings")
 minen=np.mean(Emin)
 plt.plot(range(nsteps),np.zeros(nsteps)+minen,'-.', label='Min Energy')
