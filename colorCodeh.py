@@ -98,7 +98,7 @@ class ColorCode:
         #number of qubits
         self.N=18*2**(2*m)
         if type(self.N!=int):
-            print "System size: ",self.N,int(self.N)
+            #print "System size: ",self.N,int(self.N)
             self.N=int(self.N)
         #probability of error of each qubit
         self.p=[p]*self.N #initialized all equal
@@ -115,7 +115,7 @@ class ColorCode:
         self.split=[0]*(L**2)
         #table of splitting values
         self.spt=[[[0,0],[1,1]],[[1,0],[0,1]]]
-        #spt[syndrome][split][qubit]
+        #spt[syndrome value][split value][qubit.z]
         
         #initial splitting
         for i in range(L**2):
@@ -235,9 +235,9 @@ class ColorCode:
                 prob=self.sp[s]
                 old=self.split[s]
                 if prob>0.5:
-                    self.split[s]=0
-                if prob<0.5:
                     self.split[s]=1
+                if prob<0.5:
+                    self.split[s]=0
                 if prob==0.5:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
@@ -250,15 +250,15 @@ class ColorCode:
             prob=self.sp[s]
             old=self.split[s]
             if prob>0.5:
-                self.split[s]=0
-            if prob<0.5:
                 self.split[s]=1
+            if prob<0.5:
+                self.split[s]=0
             if prob==0.5:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
                 nchanges+=1
         return nchanges, len(sptoupdate)
-    def energy(self):
+    def energy(self,info=False):
         E=0.
         for i in range(len(self.cells)):
             #indexes of the syndromes
@@ -266,6 +266,12 @@ class ColorCode:
             s0=self.spt[self.s[s[0]]][self.split[s[0]]][i%2]
             s1=self.spt[self.s[s[1]]][self.split[s[1]]][i%2]
             s2=self.spt[self.s[s[2]]][self.split[s[2]]][i%2]
+            if info:
+                print " "
+                print "Cell ",i
+                print s
+                print s0,s1,s2
+                print self.p3(self.cells[i],s0,s1,s2)
             E-=np.log(self.p3(self.cells[i],s0,s1,s2))
         return E/self.N
     
@@ -531,8 +537,7 @@ class ColorCode:
             yd=y-1
             
         #index of the neighboring cells    
-        icu=2*xu+L*yu  #cell  up  always has z=0
-        icd=2*xd+L*yd+1#cell down always has z=1
+        
         icu=xu+L*yu/2  #cell  up  always has z=0
         icd=xd+L*yd/2+1#cell down always has z=1
 #        
@@ -557,7 +562,7 @@ class ColorCode:
         ps1p=np.array( [p,  p,1-p,1-p])
         p=self.sp[is2p]
         ps2p=np.array( [p,1-p,  p,1-p])
-        
+                        
         psu3=np.zeros(4)
         psd3=np.zeros(4)
         psu03=np.zeros(4)
@@ -569,10 +574,10 @@ class ColorCode:
         #splitting for [syndrome value][0, as that contributes with p(s1)][z of cell]
         su=  self.spt[self.s[synind]][0][0]
         sd=  self.spt[self.s[synind]][0][1]
-        sv1= self.spt[self.s[s1]][0][0]
-        sv2= self.spt[self.s[s2]][0][0]
-        sv1p=self.spt[self.s[s1]][0][1]
-        sv2p=self.spt[self.s[s2]][0][1]
+        sv1= self.spt[self.s[is1]][0][0]
+        sv2= self.spt[self.s[is2]][0][0]
+        sv1p=self.spt[self.s[is1p]][0][1]
+        sv2p=self.spt[self.s[is2p]][0][1]
         
         sv=[0,0,0]#initialization
         
@@ -587,7 +592,7 @@ class ColorCode:
             sv[s2]=(sv2+cs2[j])%2     
             
             sv[st]=su#value for which we have p(s0)
-            psu3[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
+            psu3[j] =self.p3(self.cells[icu],sv[0],sv[1],sv[2])
             sv[st]=1#always one
             psu13[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
             sv[st]=0#always 0
@@ -598,31 +603,18 @@ class ColorCode:
             sv[s2]=(sv2p+cs2[j])%2     
             
             sv[st]=sd
-            psd3[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
+            psd3[j] =self.p3(self.cells[icd],sv[0],sv[1],sv[2])
             sv[st]=1
             psd13[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
             sv[st]=0
             psd03[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
         
-        psu=np.sum(psu3*ps1*ps2/(psu13+psu03))
+        psu=np.sum(psu3*ps1 *ps2 /(psu13+psu03))        
         psd=np.sum(psd3*ps1p*ps2p/(psd13+psd03))
-#        print is1,is2
-#        print ps1,ps1p
-#        print is1p,is2p
-#        print ps2,ps2p
-#        print psu3,psd3
-#        print psu13,psd13
-#        print psu03,psd03
-#        print psu,psd
-#        
-#        print 'antes',self.sp[synind]
-        self.sp[synind]=psu*psd/(psu*psd+(1-psu)*(1-psd))
-#        print 'despues',self.sp[synind]
-#        print self.sp
-#        print synind,self.sp[synind]
-#        print ' '
-#        print '----'
-#        print ' '
+        
+        self.sp[synind]=psu*psd/(psu*psd+(1.-psu)*(1.-psd))
+        
+        
         assert psu>=0 and psu<=1., 'incorrect value of psu: '+str(psu)
         assert self.sp[synind]>=0 and self.sp[synind]<=1.,  'incorrect value of new p: '+str(self.sp[synind])+' '+str(synind)
         return self.sp[synind]
@@ -741,7 +733,7 @@ class ColorCode:
         if printon:
             print len(sptoupdate),nst
         
-        i=0
+        i=-1
         start=time.time()
         while i<nst:
             i+=1
@@ -758,19 +750,20 @@ class ColorCode:
             if en<enmin:
                 enmin=en
                 splitmin=er
+        er=splitmin
+        assert len(sptoupdate)==len(er), "something went wrong in here"
+        for j in range(len(sptoupdate)):
+            self.split[sptoupdate[j]]=int(er[j])
+        
         if printon:
             print splitmin
             print time.time()-start
             self.plot(splitting=True)
-        er=splitmin
-        for j in range(len(sptoupdate)):
-            self.split[sptoupdate[j]]=int(er[j])
-        
         return enmin,splitmin
             
         
     
-    def plot(self,lattice=True,qubits=False,syndrome=True,
+    def plot(self,lattice=True,qubits=False,syndrome=True,indexs=False,
              correction=True, cells=False, error=True, splitting=False,coll='k'):
         L=int(np.sqrt(self.N/2))
         colors=["r","b","g"]
@@ -802,6 +795,9 @@ class ColorCode:
                     y.append(y[0]+L)
                 
                 plt.plot(x,y,'.',color=col,marker="o",markersize=10)
+                if indexs:                        
+                    plt.plot(x,y,'.',color="black",marker="$"+str(i)+"$",markersize=13)
+                    plt.plot(x,y,'.',color="yellow",marker="$"+str(i)+"$",markersize=10)
                     
                 #syndrome plotter
                 if (self.s[i]==1):
@@ -952,12 +948,12 @@ class ColorCode:
                 mu=mark[self.spt[self.s[i]][self.split[i]][0]]
                 md=mark[self.spt[self.s[i]][self.split[i]][1]]
                     
-                plt.plot(x+.15,y,color="black",marker=mu, markersize=10)
-                plt.plot(x+.15,y,color="black",marker=mu, markersize=6)
-                plt.plot(x+.15,y,color="yellow",marker=mu, markersize=8)
-                
-                plt.plot(x,y-0.15,color="black",marker=md, markersize=10)
-                plt.plot(x,y-0.15,color="black",marker=md, markersize=6)
-                plt.plot(x,y-0.15,color="yellow",marker=md, markersize=8)
+                plt.plot(x,y-0.15,color="black",marker=mu, markersize=10)
+                plt.plot(x,y-0.15,color="black",marker=mu, markersize=6)
+                plt.plot(x,y-0.15,color="yellow",marker=mu, markersize=8)
             
+                plt.plot(x+.15,y,color="black",marker=md, markersize=10)
+                plt.plot(x+.15,y,color="black",marker=md, markersize=6)
+                plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
+                
             
