@@ -12,6 +12,7 @@ import time
 
 #lookuptable for a 18 qubit basic code
 lut18=np.load("lookuptable18.npy")
+lut18lop=np.load("lookuptable18q4lop.npy")
 
 
 #lookup table for a 4 qubit cell
@@ -487,6 +488,75 @@ class ColorCode:
             self.c[i]=+int(cor[i])
         
         return emax
+        
+        
+    
+    def decode0lop(self):
+        global lut18lop
+        
+        assert self.m==0 and self.N==18, "Only for 18 qubit codes"
+        
+        #first, we find the index for the lutable
+        synb=''
+        for j in self.s:
+            synb+=str(int(j))
+        index=int(synb,2)
+        p=np.array(self.p)
+        q=1-p
+        pmax=-12.#initialize a lowvalue
+        phmax=-12.
+        emax=[]
+        ehmax=[]
+        hmax=[]
+        #we want to find the most probable correction
+        #print lut18[index]
+        for j in range(len(lut18[index])):
+            ph=0.    
+            for er in lut18lop[index][j]:
+                pc=1.
+                
+                for i in range(len(er)):
+                    if er[i]=='0':
+                        pc*=q[i]
+                    if er[i]=='1':
+                        pc*=p[i]
+                
+                ph+=pc
+                if pc==pmax:
+                    emax.append(er)
+                    #print emax
+                
+                if pc>pmax:
+                    pmax=pc
+                    emax=[er]
+              
+            if ph==phmax:
+                ehmax.append(emax)
+                hmax.append(j)
+                                  
+            if ph>phmax:
+                phmax=ph
+                ehmax=list(emax)
+                hmax=[j]
+            
+        #checking that we have a solution
+        if len(ehmax)==0:
+            plt.figure(10)
+            plt.clf()
+            self.plot()
+            plt.title("Invalid Syndrome")
+            assert len(emax)>0, 'Invalid syndrome'
+            
+            
+        cor=ehmax
+        if len(emax)>1:
+            cor=emax[np.random.randint(len(emax))]
+        if len(cor)>1:
+            cor=cor[np.random.randint(len(cor))]
+        for i in range(len(cor)):
+            self.c[i]=int(cor[i])
+        
+        return ehmax,hmax
             
                 
     ############################################################        
