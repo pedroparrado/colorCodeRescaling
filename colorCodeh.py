@@ -510,7 +510,7 @@ class ColorCode:
         hmax=[]
         #we want to find the most probable correction
         #print lut18[index]
-        for j in range(len(lut18[index])):
+        for j in range(len(lut18lop[index])):
             ph=0.    
             for er in lut18lop[index][j]:
                 pc=1.
@@ -553,6 +553,7 @@ class ColorCode:
             cor=emax[np.random.randint(len(emax))]
         if len(cor)>1:
             cor=cor[np.random.randint(len(cor))]
+        print cor
         for i in range(len(cor)):
             self.c[i]=int(cor[i])
         

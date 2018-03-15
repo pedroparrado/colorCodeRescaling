@@ -60,6 +60,10 @@ for i in range(len(code.split)):
     code.split[i]=0
 for i in range(35):
     code.resplit()
+for i in range(3):
+    code.resplit(1)
+    code.resplit(2)
+    code.resplit(0)
 code.plot(splitting=True)
 plt.title("different initialization, "+str(code.energy()))
 print code.split, "init at 0"
@@ -127,13 +131,21 @@ for j in range(nmeas):
         T+=t
         E[i]+=code.energy()
         
-    changes2=np.zeros(nsteps)    
+    changes2=np.zeros(nsteps)  
+    #different initialization
     changes3=np.zeros(nsteps)    
     for i in range(nsteps):
         changes2[i],T=code2.resplit()
         E2[i]+=code2.energy()
         changes3[i],T=code3.resplit()
         E3[i]+=code3.energy()
+    c=0        
+    for i in range(3):
+        c1,t=code.resplit(1)
+        c2,t=code.resplit(2)
+        c3,t=code.resplit(0)
+        c+=c1+c2+c3
+    ch3[-1]+=c
     ch+=changes*1./T
     ch2+=changes2*1./T 
     ch3+=changes3*1./T 

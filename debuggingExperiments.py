@@ -192,13 +192,54 @@ plt.plot(Ep,'d',label="Soft Paralellized")
 plt.title("Energy after the splittings")
 plt.legend()
 
-''' 
-E=E-min(E)+1e-8
-E2=E2-min(E2)+1e-8
-plt.figure(6)
-plt.clf()
-plt.title("Energy, log scale")
-plt.plot(np.log(E2),'p',label="Randomized")
-plt.plot(np.log(E),'p',label="Paralellized")
-plt.legend()
-'''
+
+#%%
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+from colorCodeh import *
+code=ColorCode(0,.1)
+code.noise()
+code.syndrome()
+lut18=np.load("lookuptable18.npy")
+lut18lop=np.load("lookuptable18q4lop.npy")
+
+code2=copy.deepcopy(code)
+
+code.decode0()
+code2.decode0lop()
+
+plt.figure(0)
+code.plot()
+plt.title("MLE decoder")
+plt.figure(1)
+code2.plot()
+plt.title("MLH decoder")
+
+
+
+lut18=np.load("lookuptable18.npy")
+lut18lop=np.load("lookuptable18q4lop.npy")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
