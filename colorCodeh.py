@@ -508,12 +508,21 @@ class ColorCode:
         emax=[]
         ehmax=[]
         hmax=[]
+        
+        explored=set()
+        count=0
+        case=0
         #we want to find the most probable correction
-        #print lut18[index]
         for j in range(len(lut18lop[index])):
             ph=0.    
             for er in lut18lop[index][j]:
                 pc=1.
+                
+                if er in explored:
+                    print "Explored state! ",er
+                    count+=1
+                    print count, len(lut18lop[index][j])
+                explored.add(er)
                 
                 for i in range(len(er)):
                     if er[i]=='0':
@@ -529,16 +538,18 @@ class ColorCode:
                 if pc>pmax:
                     pmax=pc
                     emax=[er]
-              
+            #print ph  
             if ph==phmax:
                 ehmax.append(emax)
                 hmax.append(j)
+                case=1
                                   
             if ph>phmax:
                 phmax=ph
                 ehmax=list(emax)
                 hmax=[j]
-            
+                case=2
+        
         #checking that we have a solution
         if len(ehmax)==0:
             plt.figure(10)
@@ -551,9 +562,14 @@ class ColorCode:
         cor=ehmax
         if len(emax)>1:
             cor=emax[np.random.randint(len(emax))]
-        if len(cor)>1:
-            cor=cor[np.random.randint(len(cor))]
-        print cor
+        while type(cor)==list:
+                
+            if len(cor)>1:
+                cor=cor[np.random.randint(len(cor))]
+            else:
+                cor=cor[0]
+        assert len(cor)==18, "the correction needs to have 18 digits, now has "+str(len(cor))+", case: "+str(case)
+        
         for i in range(len(cor)):
             self.c[i]=int(cor[i])
         

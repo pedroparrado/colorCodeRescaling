@@ -171,13 +171,17 @@ for i in range(len(lut)):
         #for each position, we find all combinations of L. operators
         for j in range(2**4):
             #we find the combination of Log. Ops.
-            comb=bin(i)[2:]
+            comb=bin(j)[2:]
             comb='0'*(4-len(comb))+comb
-            
+            if i==0:
+                print comb
             newstate=state
             for z in range(4):
                 if comb[z]=="1":
+                    #print lop[z]
                     newstate=applyop(lop[z],newstate)
+            if i==0:
+                print newstate
             lut4[i][j]=applystabilizers(newstate,s)
 
         
