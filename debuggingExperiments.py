@@ -201,7 +201,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from colorCodeh import *
-code=ColorCode(0,.1)
+
+code=ColorCode(0,.15)
 code.noise()
 code.syndrome()
 lut18=np.load("lookuptable18.npy")
@@ -210,28 +211,137 @@ lut18lop=np.load("lookuptable18q4lop.npy")
 code2=copy.deepcopy(code)
 
 code.decode0()
-code2.decode0lop()
+ehmax,hmax=code2.decode0lop()
 
 plt.figure(0)
+plt.clf()
 code.plot()
 plt.title("MLE decoder")
 plt.figure(1)
+plt.clf()
 code2.plot()
 plt.title("MLH decoder")
 
+def check18(code,printall=False):
+        
+    
+    epc=""    
+    for i in range(18):
+        new=0
+        if code.e[i]==1:
+            new+=1
+        if code.c[i]==1:
+            new+=1
+        epc+=str(new%2)
+    if printall:
+            
+        print "Error correction status:"
+        if epc in lut18lop[0][3]:
+            print "Error solved for MLE Case"
+        else:
+            print "Logical error induced"
+
+    if epc in lut18lop[0][3]:
+        return 0
+    else:
+        return 1
+
+check18(code,True)
+check18(code2,True)
+#lut18=np.load("lookuptable18.npy")
+#lut18lop=np.load("lookuptable18q4lop.npy")
+
+
+
+#%%
+
+#Monte carlo for 18 qubit code
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+from colorCodeh import *
 
 
 lut18=np.load("lookuptable18.npy")
 lut18lop=np.load("lookuptable18q4lop.npy")
 
+niter=40000
+nsteps=15
+P=np.linspace(0.0002,0.03,nsteps)
+
+peMLE=np.zeros(nsteps)
+peMLH=np.zeros(nsteps)
+
+timecreate=0.
+timenoise=0.
+timecopy=0.
+timedecode1=0.
+timedecode2=0.
+timecheck=0.
+def addtime(timecount,start):
+    timecount+=time.time()-start
+    start=time.time()
+    return timecount,start
+
+start0=time.time()
+for j in range(nsteps):
+    p=P[j]
+    if j>0:            
+        timetonow=time.time()-start0
+        totaltimestimate=timetonow/j*nsteps
+        print "Step: ",j,"Current time: ",timetonow
+        print "Stimated time to finish: ",totaltimestimate-timetonow
+        print "Stimated total time: ",totaltimestimate
+    for i in range(niter):
+        start=time.time()   
+        
+        code=ColorCode(0,p)        
+        timecreate,start=addtime(timecreate,start)
+        
+        code.noise()
+        code.syndrome()        
+        timenoise,start=addtime(timenoise,start)
+        
+        code2=copy.deepcopy(code)
+        timecopy,start=addtime(timecopy,start)
+        
+        code.decode0()
+        timedecode1,start=addtime(timedecode1,start)
+        
+        code2.decode0lop()
+        timedecode2,start=addtime(timedecode2,start)
+        
+        peMLE[j]+=check18(code)
+        peMLH[j]+=check18(code2)
+                
+        timecheck,start=addtime(timecheck,start)
+
+
+print "timers:"
+
+
+print timecreate/60., " min for creating ColorCode"
+print timenoise/60., " min for generating noise"
+print timecopy/60., " min for copying the code"
+print timedecode1/60., " min for decoding MLE"
+print timedecode2/60., " min for decoding MLH"
+print timecheck/60., " min for checking logical error"
 
 
 
+peMLE=peMLE/niter
+peMLH=peMLH/niter
 
 
-
-
-
+plt.figure(4)
+plt.clf()
+plt.plot(P,peMLE,'p-',label="MLE")
+plt.plot(P,peMLH,'p-',label="MLH")
+plt.legend()
+plt.title("Probability of Logical Error")
+plt.xlabel("p")
 
 
 
