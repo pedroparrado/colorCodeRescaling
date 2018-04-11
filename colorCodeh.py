@@ -194,6 +194,11 @@ class ColorCode:
                 s=sptoupdate[np.random.randint(0,len(sptoupdate))]
                 prob=self.ps(s)
                 old=self.split[s]
+                
+                #CHECK ENERGY
+                E1=self.energy()
+                #CHECK ENERGY
+                
                 if prob<0.5:
                     self.split[s]=1
                 if prob>0.5:
@@ -202,12 +207,24 @@ class ColorCode:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
                     nchanges+=1
+                    
+                #CHECK ENERGY
+                E2=self.energy()
+                assert E2<E1, "Bad step in split "+str(s)
+                #CHECK ENERGY
+                    
+                    
             return nchanges, len(sptoupdate)
 
         #ordered updates               
         for s in sptoupdate:
             prob=self.ps(s)
             old=self.split[s]
+        
+            #CHECK ENERGY
+            E1=self.energy()
+            #CHECK ENERGY
+            
             if prob<0.5:
                 self.split[s]=1
             if prob>0.5:
@@ -216,6 +233,11 @@ class ColorCode:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
                 nchanges+=1
+            
+            #CHECK ENERGY
+            E2=self.energy()
+            assert E2<E1, "Bad step in split "+str(s)
+            #CHECK ENERGY
         return nchanges, len(sptoupdate)
             
     def softresplit(self,l=3):
@@ -235,6 +257,11 @@ class ColorCode:
                 self.sp[s]=self.pupdate(s)#splitprobability
                 prob=self.sp[s]
                 old=self.split[s]
+                
+                #CHECK ENERGY
+                E1=self.energy()
+                #CHECK ENERGY
+                
                 if prob>0.5:
                     self.split[s]=1
                 if prob<0.5:
@@ -243,6 +270,11 @@ class ColorCode:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
                     nchanges+=1
+                    
+                #CHECK ENERGY
+                E2=self.energy()
+                assert E2<E1, "Bad step in split "+str(s)
+                #CHECK ENERGY
             return nchanges, len(sptoupdate)
 
         #ordered updates               
@@ -250,6 +282,11 @@ class ColorCode:
             self.sp[s]=self.pupdate(s)#splitprobability
             prob=self.sp[s]
             old=self.split[s]
+            
+            #CHECK ENERGY
+            E1=self.energy()
+            #CHECK ENERGY
+            
             if prob>0.5:
                 self.split[s]=1
             if prob<0.5:
@@ -258,6 +295,12 @@ class ColorCode:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
                 nchanges+=1
+            
+            #CHECK ENERGY
+            E2=self.energy()
+            assert E2<E1, "Bad step in split "+str(s)
+            #CHECK ENERGY
+            
         return nchanges, len(sptoupdate)
     def energy(self,info=False):
         E=0.
