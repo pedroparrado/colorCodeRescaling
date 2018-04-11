@@ -267,9 +267,10 @@ from colorCodeh import *
 lut18=np.load("lookuptable18.npy")
 lut18lop=np.load("lookuptable18q4lop.npy")
 
-niter=40000
+niter=500
 nsteps=15
-P=np.linspace(0.0002,0.03,nsteps)
+pvar=0.00#percentage of the variation in the error probabilities
+P=np.linspace(0.0002,0.3,nsteps)
 
 peMLE=np.zeros(nsteps)
 peMLH=np.zeros(nsteps)
@@ -297,7 +298,10 @@ for j in range(nsteps):
     for i in range(niter):
         start=time.time()   
         
-        code=ColorCode(0,p)        
+        code=ColorCode(0,p)    
+        for k in range(18):
+            r=np.random.rand()-.5
+            code.p[k]=code.p[k]*(1.+r*pvar)
         timecreate,start=addtime(timecreate,start)
         
         code.noise()

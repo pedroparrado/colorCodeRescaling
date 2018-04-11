@@ -88,6 +88,13 @@ print code.sp, "init at 0, soft"
 #average number of splitting changes per step
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+from colorCodeh import *
+
+import copy
+
 import copy
 nsteps=15
 nmeas=1000
@@ -105,7 +112,26 @@ chp=np.zeros(nsteps)
 chp2=np.zeros(nsteps)
 Ep=np.zeros(nsteps)
 Ep2=np.zeros(nsteps)
+Ep3=np.zeros(nsteps)
 Emin=np.zeros(nmeas)
+
+count1=np.zeros(nsteps)
+count2=np.zeros(nsteps)
+count3=np.zeros(nsteps)
+count4=np.zeros(nsteps)
+count5=np.zeros(nsteps)
+count6=np.zeros(nsteps)
+
+de1=np.zeros(nsteps)
+de2=np.zeros(nsteps)
+de3=np.zeros(nsteps)
+de4=np.zeros(nsteps)
+de5=np.zeros(nsteps)
+de6=np.zeros(nsteps)
+
+
+
+
 for j in range(nmeas):
     code=ColorCode(m,.05)
     code.noise()
@@ -114,10 +140,19 @@ for j in range(nmeas):
     code3=copy.deepcopy(code)
     codep=copy.deepcopy(code)
     codep2=copy.deepcopy(code)
+    codep3=copy.deepcopy(code)
+    codemin=copy.deepcopy(code)
     changes=np.zeros(nsteps)
+
+    Emin[j],fs=codemin.fullsplittester()    
+    
+    
+    #initial condition
     for i in range(len(code3.split)):
         code3.split[i]=0
-        
+        codep3.sp[i]=0.75
+    
+    
     for i in range(nsteps):
         T=0
         c,t=code.resplit(1)
@@ -130,22 +165,26 @@ for j in range(nmeas):
         changes[i]+=c
         T+=t
         E[i]+=code.energy()
+        de1[i]+=code.energy()/Emin[j]/nmeas
+            
+        if code.energy()==Emin[j]:
+            count1[i]+=1./nmeas
         
     changes2=np.zeros(nsteps)  
     #different initialization
     changes3=np.zeros(nsteps)    
     for i in range(nsteps):
+        changes3[i],T=code3.resplit()
+        E3[i]+=code3.energy()        
+        de3[i]+=code3.energy()/Emin[j]/nmeas
         changes2[i],T=code2.resplit()
         E2[i]+=code2.energy()
-        changes3[i],T=code3.resplit()
-        E3[i]+=code3.energy()
-    c=0        
-    for i in range(3):
-        c1,t=code.resplit(1)
-        c2,t=code.resplit(2)
-        c3,t=code.resplit(0)
-        c+=c1+c2+c3
-    ch3[-1]+=c
+        de2[i]+=code2.energy()/Emin[j]/nmeas
+        if code2.energy()==Emin[j]:
+            count2[i]+=1./nmeas
+        if code3.energy()==Emin[j]:
+            count3[i]+=1./nmeas
+        
     ch+=changes*1./T
     ch2+=changes2*1./T 
     ch3+=changes3*1./T 
@@ -164,6 +203,10 @@ for j in range(nmeas):
         changesp[i]+=c
         T+=t
         Ep[i]+=codep.energy()
+        de4[i]+=codep.energy()/Emin[j]/nmeas
+        
+        if codep.energy()==Emin[j]:
+            count4[i]+=1./nmeas
         
     
         
@@ -171,10 +214,23 @@ for j in range(nmeas):
     for i in range(nsteps):
         changesp2[i],T=codep2.softresplit()
         Ep2[i]+=codep2.energy()
-    Emin[j],fs=code.fullsplittester()    
+        de5[i]+=codep2.energy()/Emin[j]/nmeas
+        if codep2.energy()==Emin[j]:
+            count5[i]+=1./nmeas
+    changesp3=np.zeros(nsteps)    
+    for i in range(nsteps):
+        c,T=codep3.softresplit()
+        Ep3[i]+=codep3.energy()
+        de6[i]+=codep3.energy()/Emin[j]/nmeas
+        if codep3.energy()==Emin[j]:
+            count6[i]+=1./nmeas
     
     chp+=changesp*1./T
     chp2+=changesp2*1./T 
+    
+    
+  
+    
 
 ch=ch/nmeas
 ch2=ch2/nmeas
@@ -186,6 +242,7 @@ chp=chp/nmeas
 chp2=chp2/nmeas
 Ep=Ep/nmeas
 Ep2=Ep2/nmeas
+Ep3=Ep3/nmeas
 plt.figure(3)
 plt.clf()
 plt.plot(ch2,'p-',label="Randomized")
@@ -212,9 +269,33 @@ plt.plot(E3,'p-',label="Init at 0")
 plt.plot(E,'p-',label="Paralellized")
 plt.plot(Ep2,'d-',label="Soft Randomized")
 plt.plot(Ep,'d-',label="Soft Paralellized")
+plt.plot(Ep3,'d-',label="Soft init0")
 plt.title("Energy after the splittings")
 minen=np.mean(Emin)
 plt.plot(range(nsteps),np.zeros(nsteps)+minen,'-.', label='Min Energy')
+plt.legend()
+
+
+plt.figure(2)
+plt.clf()
+plt.plot(count2,'p-',label="Randomized")
+plt.plot(count3,'p-',label="Init at 0")
+plt.plot(count1,'p-',label="Paralellized")
+plt.plot(count5,'d-',label="Soft Randomized")
+plt.plot(count4,'d-',label="Soft Paralellized")
+plt.plot(count6,'d-',label="Soft init0")
+plt.title("Percentage of cases with optimal solution")
+plt.legend()
+
+plt.figure(1)
+plt.clf()
+plt.plot(de2-1,'p-',label="Randomized")
+plt.plot(de3-1,'p-',label="Init at 0")
+plt.plot(de1-1,'p-',label="Paralellized")
+plt.plot(de5-1,'d-',label="Soft Randomized")
+plt.plot(de4-1,'d-',label="Soft Paralellized")
+plt.plot(de6-1,'d-',label="Soft init0")
+plt.title("Energy difference")
 plt.legend()
 
 
