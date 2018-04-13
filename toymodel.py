@@ -97,7 +97,7 @@ import copy
 
 import copy
 nsteps=15
-nmeas=1000
+nmeas=1
 
 
 nq=32

@@ -210,7 +210,9 @@ class ColorCode:
                     
                 #CHECK ENERGY
                 E2=self.energy()
-                assert E2<E1, "Bad step in split "+str(s)
+                assert E2<=E1, "Bad step in hard split r, "+str(s)+", prob:"+str(prob)+"\n"+   \
+                    "From "+str(old)+" to "+str(self.split[s])+"\n"+    \
+                    str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
                 #CHECK ENERGY
                     
                     
@@ -236,7 +238,9 @@ class ColorCode:
             
             #CHECK ENERGY
             E2=self.energy()
-            assert E2<E1, "Bad step in split "+str(s)
+            assert E2<=E1, "Bad step in hard split s, "+str(s)+", prob:"+str(prob)+"\n"+        \
+                    "From "+str(old)+" to "+str(self.split[s])+"\n"+    \
+                    str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
         return nchanges, len(sptoupdate)
             
@@ -263,9 +267,9 @@ class ColorCode:
                 #CHECK ENERGY
                 
                 if prob>0.5:
-                    self.split[s]=1
-                if prob<0.5:
                     self.split[s]=0
+                if prob<0.5:
+                    self.split[s]=1
                 if prob==0.5:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
@@ -273,7 +277,9 @@ class ColorCode:
                     
                 #CHECK ENERGY
                 E2=self.energy()
-                assert E2<E1, "Bad step in split "+str(s)
+                assert E2<=E1, "Bad step in soft split r, "+str(s)+"\n"+\
+                    "From "+str(old)+" to "+str(self.split[s])+"\n"+\
+                    str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
                 #CHECK ENERGY
             return nchanges, len(sptoupdate)
 
@@ -288,9 +294,9 @@ class ColorCode:
             #CHECK ENERGY
             
             if prob>0.5:
-                self.split[s]=1
-            if prob<0.5:
                 self.split[s]=0
+            if prob<0.5:
+                self.split[s]=1
             if prob==0.5:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
@@ -298,7 +304,9 @@ class ColorCode:
             
             #CHECK ENERGY
             E2=self.energy()
-            assert E2<E1, "Bad step in split "+str(s)
+            assert E2<=E1, "Bad step in soft split s,"+str(s)+"\n"+\
+                    "From "+str(old)+" to "+str(self.split[s])+"\n"+\
+                    str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
             
         return nchanges, len(sptoupdate)
@@ -768,9 +776,11 @@ class ColorCode:
     
     #probability p(s0 | s1s2)  #the ind choose which one is in the front
     def pc3(self,cell,s0,s1,s2,ind):
-        s=[s0,s1,s2]
+        s=list([s0,s1,s2])
         s[ind]=(s[ind]+1)%2
         return self.p3(cell,s0,s1,s2)/(self.p3(cell,s0,s1,s2)+self.p3(cell,s[0],s[1],s[2]))        
+    
+    
     def ps(self,sind):#finds the probability of a splitting
         L=self.L
         #first we find which kind of syndrome it is
@@ -810,17 +820,20 @@ class ColorCode:
         zcu=0
         zcd=1
         #find the index for the cells
-        indcu=xcu/2+L*ycu/2+zcu
-        indcd=xcd/2+L*ycd/2+zcd
+        #indcu=xcu/2+L*ycu/2+zcu
+        #indcd=xcd/2+L*ycd/2+zcd
+        indcu=xcu+L*ycu/2+zcu
+        indcd=xcd+L*ycd/2+zcd
         #then the cells themselves from the list
         cellu=self.cells[indcu]
         celld=self.cells[indcd]
         
         #then the syndromes involved
-        #indexes
+        #syndrome indexes
         siu=list(cellu.s)
         sid=list(celld.s)
         #initialization of the values of the half syndromes
+        #syndrome values
         svu=list(siu)
         svd=list(siu)
         
@@ -834,7 +847,7 @@ class ColorCode:
         #using that:
         #value of the halfsyndrome
         for i in range(3):
-            
+            #value=split[syndrome[Sindex][splitChoice][cell up/down]
             svu[i]=self.spt[self.s[siu[i]]][self.split[siu[i]]][0]
             svd[i]=self.spt[self.s[sid[i]]][self.split[sid[i]]][1]    
             if i==inds:
@@ -1085,5 +1098,5 @@ class ColorCode:
                 plt.plot(x+.15,y,color="black",marker=md, markersize=10)
                 plt.plot(x+.15,y,color="black",marker=md, markersize=6)
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
-                
+        return ""
             

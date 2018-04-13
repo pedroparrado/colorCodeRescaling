@@ -270,7 +270,7 @@ lut18lop=np.load("lookuptable18q4lop.npy")
 niter=500
 nsteps=15
 pvar=0.00#percentage of the variation in the error probabilities
-P=np.linspace(0.0002,0.3,nsteps)
+P=np.linspace(0.0002,0.03,nsteps)
 
 peMLE=np.zeros(nsteps)
 peMLH=np.zeros(nsteps)
