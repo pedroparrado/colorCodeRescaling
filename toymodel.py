@@ -97,7 +97,7 @@ import copy
 
 import copy
 nsteps=15
-nmeas=1
+nmeas=1000
 
 
 nq=32
@@ -189,6 +189,8 @@ for j in range(nmeas):
     ch2+=changes2*1./T 
     ch3+=changes3*1./T 
     
+    
+    '''
     #soft respliting
     changesp=np.zeros(nsteps)
     for i in range(nsteps):
@@ -228,7 +230,7 @@ for j in range(nmeas):
     chp+=changesp*1./T
     chp2+=changesp2*1./T 
     
-    
+    '''
   
     
 
@@ -248,8 +250,12 @@ plt.clf()
 plt.plot(ch2,'p-',label="Randomized")
 plt.plot(ch3,'p-',label="Init at 0")
 plt.plot(ch,'p-',label="Paralellized")
+
+'''
 plt.plot(chp2,'d-',label="Soft Randomized")
 plt.plot(chp,'d-',label="Soft Paralellized")
+'''
+
 plt.title("Percentage of splitting changes")
 plt.ylim(0,1)
 plt.legend()
@@ -259,17 +265,26 @@ plt.title("Percentage of splitting changes, log scale")
 plt.plot(np.log(ch2),'p-',label="Randomized")
 plt.plot(np.log(ch3),'p-',label="Init at 0")
 plt.plot(np.log(ch),'p-',label="Paralellized")
+
+'''
 plt.plot(np.log(chp2),'d-',label="Soft Randomized")
 plt.plot(np.log(chp),'d-',label="Soft Paralellized")
+
+'''
 plt.legend()
 plt.figure(5)
 plt.clf()
 plt.plot(E2,'p-',label="Randomized")
 plt.plot(E3,'p-',label="Init at 0")
 plt.plot(E,'p-',label="Paralellized")
+
+'''
 plt.plot(Ep2,'d-',label="Soft Randomized")
 plt.plot(Ep,'d-',label="Soft Paralellized")
 plt.plot(Ep3,'d-',label="Soft init0")
+'''
+
+
 plt.title("Energy after the splittings")
 minen=np.mean(Emin)
 plt.plot(range(nsteps),np.zeros(nsteps)+minen,'-.', label='Min Energy')
@@ -281,9 +296,14 @@ plt.clf()
 plt.plot(count2,'p-',label="Randomized")
 plt.plot(count3,'p-',label="Init at 0")
 plt.plot(count1,'p-',label="Paralellized")
+
+'''
 plt.plot(count5,'d-',label="Soft Randomized")
 plt.plot(count4,'d-',label="Soft Paralellized")
 plt.plot(count6,'d-',label="Soft init0")
+'''
+
+
 plt.title("Percentage of cases with optimal solution")
 plt.legend()
 
@@ -292,9 +312,14 @@ plt.clf()
 plt.plot(de2-1,'p-',label="Randomized")
 plt.plot(de3-1,'p-',label="Init at 0")
 plt.plot(de1-1,'p-',label="Paralellized")
+
+'''
 plt.plot(de5-1,'d-',label="Soft Randomized")
 plt.plot(de4-1,'d-',label="Soft Paralellized")
 plt.plot(de6-1,'d-',label="Soft init0")
+'''
+
+
 plt.title("Energy difference")
 plt.legend()
 

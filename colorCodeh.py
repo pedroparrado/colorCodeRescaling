@@ -210,8 +210,9 @@ class ColorCode:
                     
                 #CHECK ENERGY
                 E2=self.energy()
-                assert E2<=E1, "Bad step in hard split r, "+str(s)+", prob:"+str(prob)+"\n"+   \
+                assert E2<=E1+1e-7, "Bad step in hard split r, "+str(s)+", prob:"+str(prob)+"\n"+   \
                     "From "+str(old)+" to "+str(self.split[s])+"\n"+    \
+                    "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
                 #CHECK ENERGY
                     
@@ -238,8 +239,9 @@ class ColorCode:
             
             #CHECK ENERGY
             E2=self.energy()
-            assert E2<=E1, "Bad step in hard split s, "+str(s)+", prob:"+str(prob)+"\n"+        \
+            assert E2<=E1+1e-7, "Bad step in hard split s, "+str(s)+", prob:"+str(prob)+"\n"+        \
                     "From "+str(old)+" to "+str(self.split[s])+"\n"+    \
+                    "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
         return nchanges, len(sptoupdate)
@@ -277,8 +279,9 @@ class ColorCode:
                     
                 #CHECK ENERGY
                 E2=self.energy()
-                assert E2<=E1, "Bad step in soft split r, "+str(s)+"\n"+\
+                assert E2<=E1+1e-7, "Bad step in soft split r, "+str(s)+"\n"+\
                     "From "+str(old)+" to "+str(self.split[s])+"\n"+\
+                    "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
                 #CHECK ENERGY
             return nchanges, len(sptoupdate)
@@ -304,8 +307,9 @@ class ColorCode:
             
             #CHECK ENERGY
             E2=self.energy()
-            assert E2<=E1, "Bad step in soft split s,"+str(s)+"\n"+\
+            assert E2<=E1+1e-7, "Bad step in soft split s,"+str(s)+"\n"+\
                     "From "+str(old)+" to "+str(self.split[s])+"\n"+\
+                    "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
             
@@ -356,6 +360,8 @@ class ColorCode:
         splitsteps=15
         i=0
         nchanges=25
+        for i in range(len(self.split)):
+            self.split[i]=0
         while i<splitsteps and nchanges>0:
             i+=1
             '''
