@@ -150,7 +150,43 @@ class ColorCode:
             if (x%2==1 and y%2==1):
                 self.s2s.append(i)
             
+        #logical operators
+        self.logic=[]
         
+        redhorizontal=[]
+        bluehorizontal=[]
+        for i in range(self.L*2):
+            if i%3!=2:
+                redhorizontal.append(i)
+                bluehorizontal.append(i+4*self.L)
+        redvertical=[]
+        bluevertical=[]
+        verticallist=[]
+        for i in range(self.L):
+            ind=2*self.L*i
+            verticallist.append(ind)
+            verticallist.append(ind+1)
+        assert len(verticallist)==2*self.L, "The list is incomplete"
+        for i in range(len(verticallist)):
+            if i%3!=2:
+                redvertical.append(verticallist[i])
+                bluevertical.append(verticallist[i]+2)
+        self.logic.append(redhorizontal)
+        self.logic.append(bluehorizontal)
+        self.logic.append(redvertical)
+        self.logic.append(bluevertical)    
+        
+        
+    def checkLogError(self):
+        loger=[0,0,0,0]
+        for j in range(len(self.logic)):
+            for i in self.logic[j]:
+                loger[j]+=self.e[i]
+                loger[j]+=self.c[i]
+            loger[j]=loger[j]%2
+        finalres=min(1,sum(loger))
+        return finalres,loger
+                
         
         
     def noise(self):
@@ -339,16 +375,18 @@ class ColorCode:
             
         return S/len(splits)
     
-    def hardDecoder(self,softsplit=True,plotall=False):
+    def hardDecoder(self,softsplit=False,plotall=False):
         #if m==0, apply the lookuptable decoder
-        
+        if plotall:
+            print "Starting decoder of level ", self.m
         if self.m==0:
             self.decode0()
                 
             if plotall:
                 plt.figure(self.m)
                 plt.clf()
-                self.plot(splitting=True, cells=False)
+                self.plot(splitting=False, cells=False,indexs=True)
+                plt.title("Correction of the 18q decoder")
             return self.c
         #if m>0, apply the rescaling procedure
         
@@ -358,12 +396,17 @@ class ColorCode:
         #   SPLITTING OF SYNDROMES
         #first, do the splitting
         splitsteps=15
-        i=0
         nchanges=25
         for i in range(len(self.split)):
             self.split[i]=0
+        if plotall:
+            print "Starting splitting process", i, nchanges
+            
+        i=0
         while i<splitsteps and nchanges>0:
             i+=1
+            if plotall:
+                print "Splitting step ",i
             '''
             c0,t=self.resplit(0)
             c1,t=self.resplit(1)
@@ -377,8 +420,8 @@ class ColorCode:
                 else:
                     changes,t=self.resplit()
                 nchanges+=changes
-            
-            print nchanges,i
+            if plotall:
+                print "changes in splitter: ",nchanges,i
             #   DECODING EACH CELL
         #now the decoding of each cell is independent
         
@@ -477,8 +520,10 @@ class ColorCode:
             plt.figure(self.m)
             plt.clf()
             self.plot(splitting=True, cells=False)
+            plt.title("Correction at this level before rescaling")
             
-        newcode.hardDecoder(plotall)
+            
+        newcode.hardDecoder(plotall=plotall)
         
         # TRANSLATING THE CORRECTION TO OUR CODE
         for i in range(len(newcode.c)):
@@ -490,10 +535,21 @@ class ColorCode:
                 self.c[inds[0]]=(self.c[inds[0]]+1)%2
                 self.c[inds[2]]=(self.c[inds[2]]+1)%2
                 self.c[inds[3]]=(self.c[inds[3]]+1)%2
+        res,loger=self.checkLogError()
+        if plotall:
+            plt.figure(-self.m)
+            plt.clf()
+            self.plot(splitting=True, cells=False)
+            if res==0:
+                resulttext="Success: "+str(loger)
+            if res==1:
+                resulttext="Log. Error: "+str(loger)
+            assert res==0 or res==1, "check Log Error is doing something wrong: "+str(res)
+            plt.title("Final correction at this level \n"+str(resulttext))
             
         #and we have finished, all the information of the correction is
         #stored in the variable self.c
-        return
+        return res,loger
                 
             
             
@@ -912,7 +968,7 @@ class ColorCode:
             
         
     
-    def plot(self,lattice=True,qubits=False,syndrome=True,indexs=False,
+    def plot(self,lattice=True,qubits=False,syndrome=True,indexs=False,logicops=False,
              correction=True, cells=False, error=True, splitting=False,coll='k'):
         L=int(np.sqrt(self.N/2))
         colors=["r","b","g"]
@@ -965,6 +1021,36 @@ class ColorCode:
                 y+=.3+z*.4
             
                 plt.plot(x,y,'.',color="yellow",marker="$q$",markersize=14)
+        
+        if logicops:
+            for i in self.logic[0]:
+                x=(i/2)%L
+                y=(i/2)/L
+                z=i%2
+                x+=.25+z*.4
+                y+=.3+z*.4            
+                plt.plot(x,y,'.',color="red",marker="$H$",markersize=14)
+            for i in self.logic[1]:
+                x=(i/2)%L
+                y=(i/2)/L
+                z=i%2
+                x+=.35+z*.4
+                y+=.3+z*.4            
+                plt.plot(x,y,'.',color="blue",marker="$H$",markersize=14)
+            for i in self.logic[2]:
+                x=(i/2)%L
+                y=(i/2)/L
+                z=i%2
+                x+=.25+z*.4
+                y+=.3+z*.4            
+                plt.plot(x,y,'.',color="red",marker="$V$",markersize=14)
+            for i in self.logic[3]:
+                x=(i/2)%L
+                y=(i/2)/L
+                z=i%2
+                x+=.35+z*.4
+                y+=.3+z*.4            
+                plt.plot(x,y,'.',color="blue",marker="$V$",markersize=14)
         
         
         
@@ -1105,4 +1191,25 @@ class ColorCode:
                 plt.plot(x+.15,y,color="black",marker=md, markersize=6)
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
         return ""
+    
+    def simulation(self,per=-1):
+        if per==-1:
+            per=self.p[0]
+        
+        #initialization again
+        for i in range(len(self.p)):
+            self.p[i]=per
+            self.e[i]=0
+            self.c[i]=0
+        self.s=[0]*(self.L**2)
+            
+        #noise
+        self.noise()
+        #syndrome]
+        self.syndrome()
+        
+        #decoder
+        return self.hardDecoder()
+        
+
             
