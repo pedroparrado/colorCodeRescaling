@@ -230,11 +230,11 @@ class ColorCode:
                 s=sptoupdate[np.random.randint(0,len(sptoupdate))]
                 prob=self.ps(s)
                 old=self.split[s]
-                
+                '''
                 #CHECK ENERGY
                 E1=self.energy()
                 #CHECK ENERGY
-                
+                '''
                 if prob<0.5:
                     self.split[s]=1
                 if prob>0.5:
@@ -243,7 +243,7 @@ class ColorCode:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
                     nchanges+=1
-                    
+                '''   
                 #CHECK ENERGY
                 E2=self.energy()
                 assert E2<=E1+1e-7, "Bad step in hard split r, "+str(s)+", prob:"+str(prob)+"\n"+   \
@@ -251,7 +251,7 @@ class ColorCode:
                     "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
                 #CHECK ENERGY
-                    
+                ''' 
                     
             return nchanges, len(sptoupdate)
 
@@ -259,11 +259,11 @@ class ColorCode:
         for s in sptoupdate:
             prob=self.ps(s)
             old=self.split[s]
-        
+            '''
             #CHECK ENERGY
             E1=self.energy()
             #CHECK ENERGY
-            
+            '''
             if prob<0.5:
                 self.split[s]=1
             if prob>0.5:
@@ -273,6 +273,7 @@ class ColorCode:
             if self.split[s]!=old:
                 nchanges+=1
             
+            '''
             #CHECK ENERGY
             E2=self.energy()
             assert E2<=E1+1e-7, "Bad step in hard split s, "+str(s)+", prob:"+str(prob)+"\n"+        \
@@ -280,6 +281,7 @@ class ColorCode:
                     "From "+str(E1)+" to "+str(E2)+"\n"+    \
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
+            '''
         return nchanges, len(sptoupdate)
             
     def softresplit(self,l=3):
