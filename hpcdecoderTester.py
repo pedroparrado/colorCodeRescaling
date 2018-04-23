@@ -58,6 +58,7 @@ for j in range(Niter):
     if (j+1)%500==0 and j>0:
         totaltime=time.time()-startime
         niter500=500
+        niterold=500
         #save current progress
         
         #filename of the temporal progress save

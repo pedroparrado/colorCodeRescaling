@@ -19,7 +19,7 @@ code.noise()
 code.syndrome()
 code.hardDecoder(softsplit=False,plotall=True)
 
-        
+
    
     
 #%%    
@@ -31,8 +31,8 @@ plt.figure(1)
 plt.clf()
 
 nsteps=12
-Niter=1000
-nsizes=3
+Niter=30000
+nsizes=4
 
 P=np.linspace(0.001,0.1,nsteps)
 startime=time.time()
