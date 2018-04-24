@@ -26,8 +26,10 @@ code=ColorCode(1,.08)
 P=np.linspace(p1,p2,nsteps)
 startime=time.time()
 E=np.zeros(nsteps)
+Epartial=np.zeros((nsteps,4))#one for each logical error
 t=np.zeros(nsteps)
 E500=np.zeros(nsteps)
+Ep500=np.zeros((nsteps,4))
 t500=np.zeros(nsteps)
 code=ColorCode(size,P[0])
 
@@ -38,6 +40,9 @@ for j in range(Niter):
         p=P[i]
         res,loger=code.simulation(p)
         E[i]+=res
+        for k in range(4):
+            Epartial[i,k]+=loger[k]
+            Ep500[i,k]+=loger[k]
         t[i]+=time.time()-dt
         E500[i]+=res
         t500[i]+=time.time()-dt
@@ -90,7 +95,7 @@ for j in range(Niter):
                 
         #save the data
         f=open(filen,"w")    
-        f.write(str(niterold)+" "+str(nsteps)+" "+str(totaltime)+"\n")
+        f.write(str(niterold)+" "+str(nsteps)+" "+str(0)+" "+str(1)+" "+str(2)+" "+str(3)+str(totaltime)+"\n")
         for i in range(len(P)):
             f.write(str(P[i])+" "+str(E500[i])+" "+str(t500[i])+"\n")
         f.close()
