@@ -349,8 +349,8 @@ import copy
 
 import copy
 nsteps=15
-nmeas=5000
-nps=15
+nmeas=10000
+nps=60
 p1=0.01
 p2=0.09
 P=np.linspace(p1,p2,nps)
@@ -385,6 +385,7 @@ de7=np.zeros(nps)
 
 
 
+startime=time.time()
 
 for j in range(nmeas):
     for k in range(nps):
@@ -474,8 +475,19 @@ for j in range(nmeas):
             count6[k]+=1./nmeas
         if codep4.energy()==Emin[j]:
             count7[k]+=1./nmeas
-        
     
+
+    if j%10==0:
+        dt=time.time()-startime
+        currentstep=1.*(j+1.)/nmeas
+        print "Iteration "+str(j+1)+", "+str(currentstep)+"% completed"
+        print "Time spent: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
+        dt=dt*(1./currentstep)
+        timestimates.append(dt)
+        print "Total time: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
+        dt=dt*(1.-currentstep)
+        print "Time to finish: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
+        print "---------------------------------------------------------"
     
   
     

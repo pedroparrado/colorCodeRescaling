@@ -103,11 +103,11 @@ np.save(filen,E)
 #### MONTE CARLO SIMULATION OF THE DECODER WITH 5 DIFFERENT CURVES#######
 
 code=ColorCode(1,.01)
-nsteps=8
-Niter=800
+nsteps=10
+Niter=5000
 nsizes=3
 
-P=np.linspace(0.001,0.41,nsteps)
+P=np.linspace(0.001,0.03,nsteps)
 startime=time.time()
 E=np.zeros((nsteps,nsizes,5))
 codes=[]
@@ -136,7 +136,7 @@ for i in range(nsteps):
             dt=dt*(1.-currentstep)
             print "Time to finish: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
             print "---------------------------------------------------------"
-E/=niter
+E/=Niter
 totaltime=time.time()-startime
 print "Total time: "+str(totaltime)+"s, "+str(totaltime/60.)+"min, "+str(totaltime/3600.)+"h"
 
@@ -144,34 +144,40 @@ plt.figure(1)
 plt.clf()
 
 for k in range(nsizes):
-    plt.plot(P,E[:,k],'s-',label="m="+str(k+1))
+    plt.plot(P,E[:,k,0],'s-',label="m="+str(k+1))
     
 plt.title("Probability of Log Error")
+plt.xlabel("p")
 plt.legend()
-
-#stimates of total time:
-
-cumulative=np.zeros(len(timestimates))
-for i in range(len(cumulative)):
-    cumulative[i]=sum(np.array(timestimates)[0:i])/(i+1.)
 
 
 plt.figure(2)
 plt.clf()
-plt.title("Time stimates")
-plt.plot(timestimates,'.')
-plt.plot(cumulative,'.')
-plt.plot(totaltime+np.zeros(len(timestimates)))
+plt.title("Different Logical errors")
+col=["red","blue","green","yellow","black","orange","teal"]
+for k in range(nsizes):
+    for lei in range(1,5):
+        plt.plot(P,E[:,k,lei],'s-',color=col[k]  ,label="m="+str(k+1))
+plt.xlabel("p")
 
+
+plt.legend()
+Emean=np.zeros((nsteps,nsizes))
+
+for k in range(nsizes):
+    for lei in range(1,5):
+        Emean[:,k]+=E[:,k,lei]/4.
+        
 plt.figure(3)
 plt.clf()
-plt.title("Time stimates, relative error")
-plt.plot(np.abs(np.array(timestimates)/totaltime-1.),'.')
-plt.plot(np.abs(np.array(cumulative)/totaltime-1.),'.')
-plt.plot(1.+np.zeros(len(timestimates)))
+plt.title("Average of each error against any error curve")
+plt.xlabel("p")
 
+for k in range(nsizes):
+    plt.plot(P,Emean[:,k],'p-',color=col[k] ,label="Mean m="+str(k+1))
+    plt.plot(P,E[:,k,0],'s-',color=col[k]  ,label="Any error m="+str(k+1))
 
-
+plt.legend()
 #saving the simulation
 filen="ccPsimtom"+str(nsizes)+"p"+str(int(1000*P[0]))+"to"+str(int(1000*P[-1]))
 np.save(filen,P)
