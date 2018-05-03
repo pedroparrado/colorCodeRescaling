@@ -378,7 +378,7 @@ class ColorCode:
             
         return S/len(splits)
     
-    def hardDecoder(self,softsplit=False,plotall=False):
+    def hardDecoder(self,splitmethod=0,softsplit=False,plotall=False):
         #if m==0, apply the lookuptable decoder
         if plotall:
             print "Starting decoder of level ", self.m
@@ -401,7 +401,12 @@ class ColorCode:
         splitsteps=15
         nchanges=25
         for i in range(len(self.split)):
-            self.split[i]=0
+            if splitmethod==0:
+                self.split[i]=0
+            if splitmethod==1:
+                self.split[i]=np.random.randint(0,2)
+            if splitmethod==2:
+                self.sp[i]=0.5
         if plotall:
             print "Starting splitting process", i, nchanges
             
@@ -418,7 +423,7 @@ class ColorCode:
             '''
             nchanges=0
             for j in range(4):
-                if softsplit:
+                if softsplit or splitmethod==2:
                     changes,t=self.softresplit()
                 else:
                     changes,t=self.resplit()
@@ -1195,7 +1200,7 @@ class ColorCode:
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
         return ""
     
-    def simulation(self,per=-1):
+    def simulation(self,per=-1,method=0):
         if per==-1:
             per=self.p[0]
         
@@ -1212,7 +1217,7 @@ class ColorCode:
         self.syndrome()
         
         #decoder
-        return self.hardDecoder()
+        return self.hardDecoder(splitmethod=method)
         
 
             

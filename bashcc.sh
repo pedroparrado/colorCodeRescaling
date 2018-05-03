@@ -9,7 +9,9 @@ module load /app/modules/languages/python/2.7.11
 
 for ((i=1; i<=4; i+=1))
 do
-    python hpcdecoderTester.py 12 5000 $i 0.02 0.08 &
+    python hpcdecoderTester.py 12 5000 $i 0.02 0.08 0 &
+    python hpcdecoderTester.py 12 5000 $i 0.02 0.08 1 &
+    python hpcdecoderTester.py 12 5000 $i 0.02 0.08 2 &
 done
  
 
