@@ -24,7 +24,12 @@ plt.clf()
 nq=32
 m=.5*np.log2(nq*1./18.)
 code=ColorCode(m,.05)
-code.noise()
+#code.noise()
+
+
+er=[2,3]
+for i in er:
+    code.e[i]=1
 code.syndrome()
 code.plot(splitting=True,indexs=True)
 plt.title("initial state, "+str(code.energy()))
@@ -386,7 +391,7 @@ de7=np.zeros(nps)
 
 
 startime=time.time()
-
+timestimates=[]
 for j in range(nmeas):
     for k in range(nps):
         p=P[k]
@@ -556,6 +561,4 @@ plt.xlabel("Error probability per qubit")
 
 plt.title("Energy difference")
 plt.legend()
-
-
 

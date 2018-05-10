@@ -378,7 +378,7 @@ class ColorCode:
             
         return S/len(splits)
     
-    def hardDecoder(self,splitmethod=0,softsplit=False,plotall=False):
+    def hardDecoder(self,splitmethod=0,softsplit=False,plotall=False,fignum=0):
         #if m==0, apply the lookuptable decoder
         if plotall:
             print "Starting decoder of level ", self.m
@@ -386,7 +386,7 @@ class ColorCode:
             self.decode0()
                 
             if plotall:
-                plt.figure(self.m)
+                plt.figure(self.m+fignum)
                 plt.clf()
                 self.plot(splitting=False, cells=False,indexs=True)
                 plt.title("Correction of the 18q decoder")
@@ -398,7 +398,7 @@ class ColorCode:
         
         #   SPLITTING OF SYNDROMES
         #first, do the splitting
-        splitsteps=15
+        splitsteps=20
         nchanges=25
         for i in range(len(self.split)):
             if splitmethod==0:
@@ -422,7 +422,7 @@ class ColorCode:
             nchanges=c1+c2+c0
             '''
             nchanges=0
-            for j in range(4):
+            for j in range(10):
                 if softsplit or splitmethod==2:
                     changes,t=self.softresplit()
                 else:
@@ -525,13 +525,13 @@ class ColorCode:
         # DECODING THE NEW CELL
         #now that we have all the data in the new code, apply its decoder
         if plotall:
-            plt.figure(self.m)
+            plt.figure(self.m+fignum)
             plt.clf()
             self.plot(splitting=True, cells=False)
             plt.title("Correction at this level before rescaling")
             
             
-        newcode.hardDecoder(plotall=plotall)
+        newcode.hardDecoder(plotall=plotall,fignum=fignum)
         
         # TRANSLATING THE CORRECTION TO OUR CODE
         for i in range(len(newcode.c)):
@@ -545,7 +545,7 @@ class ColorCode:
                 self.c[inds[3]]=(self.c[inds[3]]+1)%2
         res,loger=self.checkLogError()
         if plotall:
-            plt.figure(-self.m)
+            plt.figure(-self.m+fignum)
             plt.clf()
             self.plot(splitting=True, cells=False)
             if res==0:

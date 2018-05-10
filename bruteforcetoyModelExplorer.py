@@ -39,11 +39,11 @@ Em=np.zeros(nps)
 startime=time.time()
 
 
-filen="toyerrors1.txt"
+filen="./results/toyerrors1.txt"
 f1=open(filen,"w")    
-filen="toyerrors2.txt"
+filen="./results/toyerrors2.txt"
 f2=open(filen,"w")    
-filen="toyerrors3.txt"
+filen="./results/toyerrors3.txt"
 f3=open(filen,"w")    
 for j in range(nmeas):
     for k in range(nps):
@@ -72,7 +72,7 @@ for j in range(nmeas):
             
         if code.energy()==Emin[j]:
             f1.write(str(code.e))
-        if code1.energy()==Emin[j]:
+        if code2.energy()==Emin[j]:
             f2.write(str(code2.e))
         if code3.energy()==Emin[j]:
             f3.write(str(code3.e))       

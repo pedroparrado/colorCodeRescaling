@@ -29,7 +29,7 @@ for method in range(3):
     filen="errors3"+methodtext[method]+".txt"
     f3=open(filen,"w")    
     ##################### ONE ERROR CHAINS #################
-    errorchains1.append([])
+    
     nerr=0
     for i in range(len(code.p)):
         code.e[i]=0
@@ -46,7 +46,6 @@ for method in range(3):
     print "Failures with one error: "+str(nerr)+"with method "+methodtext[method]
     
     ##################### TWO ERROR CHAINS #################
-    errorchains2.append([])
     nerr=0
     for i in range(len(code.p)):
         code.e[i]=0
@@ -68,7 +67,6 @@ for method in range(3):
         
     print "Failures with 2 errors: "+str(nerr)+"with method "+methodtext[method]
     ##################### 3 ERROR CHAINS #################
-    errorchains3.append([])
     nerr=0
     for i in range(len(code.p)):
         code.e[i]=0

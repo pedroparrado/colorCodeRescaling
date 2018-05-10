@@ -1,6 +1,14 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
+Created on Wed May  9 17:41:38 2018
+
+@author: pedro
+"""
+
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
 Created on Fri Apr 20 15:48:23 2018
 
 @author: pedro
@@ -15,12 +23,12 @@ import sys
 import os
 
 
-nsteps=int(sys.argv[1])
-Niter=int(sys.argv[2])
-size=int(sys.argv[3])
-p1=float(sys.argv[4])
-p2=float(sys.argv[5])
-method=int(sys.argv[6])
+nsteps=3
+Niter=1000
+size=1
+p1=.01
+p2=.5
+method=2
 
 code=ColorCode(1,.08)
 
@@ -49,28 +57,15 @@ for j in range(Niter):
         t[i]+=time.time()-dt
         E500[i]+=res
         t500[i]+=time.time()-dt
-        '''
-        if j%10==0:
-            dt=time.time()-startime
-            currentstep=1.*(j+1.)/Niter*(i+1)/nsteps
-            print "Iteration "+str(j+1)+", "+str(currentstep)+"% completed"
-            print "Time spent: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
-            dt=dt*(1./currentstep)
-            timestimates.append(dt)
-            print "Total time: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
-            dt=dt*(1.-currentstep)
-            print "Time to finish: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
-            print "---------------------------------------------------------"
-        '''
-    #500 iterations security save
-    if (j+1)%500==0 and j>0:
+    #50 iterations security save
+    if (j+1)%50==0 and j>0:
         totaltime=time.time()-startime
-        niter500=500
-        niterold=500
+        niter500=50
+        niterold=50
         #save current progress
         methodtext=['init0','hard','soft']
         #filename of the temporal progress save
-        filen="./results/ccsavem"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
+        filen="./results/cctestm"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
         
         #check if there is an already existing file
         if(os.path.isfile(filen)):
@@ -85,6 +80,7 @@ for j in range(Niter):
             y3=[]
             for line in f:
                 r=line.split()
+                print r
                 x.append(float(r[0]))
                 y.append(float(r[1]))
                 y0.append(float(r[2]))
@@ -130,7 +126,7 @@ t/=Niter
 
 methodtext=['init0','hard','soft']
 
-filen="./results/ccm"+str(size)+"Nit"+str(Niter)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
+filen="./results/cctesttotalm"+str(size)+"Nit"+str(Niter)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
 
 
 f=open(filen,"w")
