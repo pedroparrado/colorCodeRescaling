@@ -19,15 +19,15 @@ code=ColorCode(m,.01)
 #code.noise()
 
 
-er=[1]
-for i in er:
-    code.e[i]=1
-code.syndrome()
-codehard=copy.deepcopy(code)
-codesoft=copy.deepcopy(code)
 log=0
 while log == 0:
-        
+            
+    m=1
+    code=ColorCode(m,.01)
+    er=[1]
+    for i in er:
+        code.e[i]=1
+    code.syndrome()        
     log,loger=code.hardDecoder(splitmethod=0,plotall=True,fignum=0)
     #code.plot(splitting=True)
     print log, loger
