@@ -353,8 +353,8 @@ from colorCodeh import *
 import copy
 
 import copy
-nsteps=15
-nmeas=10000
+nsteps=17
+nmeas=1000
 nps=100
 p1=0.001
 p2=0.09

@@ -239,6 +239,7 @@ class ColorCode:
                     self.split[s]=1
                 if prob>0.5:
                     self.split[s]=0
+                #if prob>0.499 and prob <0.501:
                 if prob==0.5:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
@@ -408,7 +409,7 @@ class ColorCode:
             if splitmethod==2:
                 self.sp[i]=0.5
         if plotall:
-            print "Starting splitting process", i, nchanges
+            print "Starting splitting process"
             
         i=0
         while i<splitsteps and nchanges>0:
@@ -422,14 +423,14 @@ class ColorCode:
             nchanges=c1+c2+c0
             '''
             nchanges=0
-            for j in range(10):
+            for j in range(17):
                 if softsplit or splitmethod==2:
                     changes,t=self.softresplit()
                 else:
                     changes,t=self.resplit()
                 nchanges+=changes
             if plotall:
-                print "changes in splitter: ",nchanges,i
+                print "changes in splitting: ",nchanges,i
             #   DECODING EACH CELL
         #now the decoding of each cell is independent
         

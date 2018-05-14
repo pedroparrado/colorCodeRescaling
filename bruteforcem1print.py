@@ -33,15 +33,15 @@ for method in range(1):
     ##################### ONE ERROR CHAINS #################
     
     nerr=0
-    for i in range(len(code.p)):
-        code.e[i]=0
-        code.c[i]=0
+    #for i in range(len(code.p)):
+    #    code.e[i]=0
+    #    code.c[i]=0
         
-    code=ColorCode(1,.01)
-    code.s=[0]*(code.L**2)
+    #code=ColorCode(1,.01)
+    #code.s=[0]*(code.L**2)
     
-    code=ColorCode(1,.01)
-    for i in range(len(code.e)):
+    for i in range(70):#len(code.e)):
+        code=ColorCode(1,.01)
         code.e[i]=1
         code.syndrome()    
         res,loger=code.hardDecoder(splitmethod=method,plotall=True,fignum=27)
@@ -51,7 +51,7 @@ for method in range(1):
             for ki in range(len(code.e)):
                 if code.e[ki]==1:
                     texter+=str(ki)+" "
-            print texter
+            print "Failure at error: "+texter+"  "+str(sum(code.c))+"\n \n"
             nerr+=1        
         code.e[i]=0
     print "Failures with one error: "+str(nerr)+"with method "+methodtext[method]

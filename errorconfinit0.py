@@ -1,5 +1,4 @@
 
-
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -20,11 +19,12 @@ code=ColorCode(m,.01)
 
 
 log=0
-while log == 0:
-            
+attempts =0
+while log == 0 and attempts <150:
+    attempts+=1
     m=1
-    code=ColorCode(m,.01)
-    er=[1]
+    code=ColorCode(m,.02)
+    er=[14,49]
     for i in er:
         code.e[i]=1
     code.syndrome()        
