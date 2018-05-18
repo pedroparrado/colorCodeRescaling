@@ -212,6 +212,60 @@ class ColorCode:
                 iq=x*2+y*2*L+z
                 val+=self.e[iq]
             self.s[i]=val%2
+    def stabilizerneighbors(self,i):
+        #coordinates of the neighbors
+        nx=[0,-1,-1,-1, 0, 0]
+        ny=[0, 0, 0,-1,-1,-1]
+        nz=[0, 0, 1, 1, 1, 0]
+        L=self.L
+        sol=[]
+        
+        xs=i%L
+        ys=i/L
+        for j in range(len(nx)):
+            x=(xs+nx[j])%L
+            y=(ys+ny[j])%L
+            z=nz[j]
+            iq=x*2+y*2*L+z
+            sol.append(iq)
+        return sol
+    
+    def cornerpe(self,cind):
+        #computes pe for every qubit involved in this corner stabilizer
+        #and updates the corner probabilities
+        
+        qubits=self.stabilizerneighbors(cind)
+        pes=np.zeros(6)
+        s=self.s[cind]
+        for qubitind in range(6):
+            qubit=qubits[qubitind]
+            externals=set(qubits)
+            externals.remove(qubit)
+            pe=(-1.)**s*.5
+            for q in externals:
+                pe*=(1.-2.*self.p[q])
+            pe=.5-pe
+            pes[qubitind]=pe
+        
+        #now we update the 
+        for qubitind in range(6):
+            qubit=qubits[qubitind]
+            pi=self.p[qubit]
+            pe=pes[qubitind]
+            self.p[qubit]=pi*pe/(pi*pe+(1.-pi)*(1.-pe))
+        return
+    def updateCornerP(self):
+        #updates the probability of error of the corner qubits
+        L=self.L
+        #we explore all the stabilizers
+        for i in range(len(self.s)):
+            #and we update the values of the qubits
+            xs=i%L
+            ys=i/L
+            #only for the corner stabilizers
+            if (xs%2==0 and ys%2==0):
+                self.cornerpe(i)
+        return
             
             
     def resplit(self,l=3):
@@ -239,8 +293,8 @@ class ColorCode:
                     self.split[s]=1
                 if prob>0.5:
                     self.split[s]=0
-                #if prob>0.499 and prob <0.501:
-                if prob==0.5:
+                if prob>0.499 and prob <0.501:
+                #if prob==0.5:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
                     nchanges+=1
@@ -269,7 +323,8 @@ class ColorCode:
                 self.split[s]=1
             if prob>0.5:
                 self.split[s]=0
-            if prob==0.5:
+            #if prob==0.5:
+            if prob>0.499 and prob <0.501:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
                 nchanges+=1
@@ -311,7 +366,8 @@ class ColorCode:
                     self.split[s]=1
                 if prob<0.5:
                     self.split[s]=0
-                if prob==0.5:
+                #if prob==0.5:
+                if prob>0.499 and prob <0.501:
                     self.split[s]=np.random.randint(0,2)
                 if self.split[s]!=old:
                     nchanges+=1
@@ -340,7 +396,8 @@ class ColorCode:
                 self.split[s]=1
             if prob<0.5:
                 self.split[s]=0
-            if prob==0.5:
+            #if prob==0.5:
+            if prob>0.499 and prob <0.501:
                 self.split[s]=np.random.randint(0,2)
             if self.split[s]!=old:
                 nchanges+=1
@@ -379,7 +436,7 @@ class ColorCode:
             
         return S/len(splits)
     
-    def hardDecoder(self,splitmethod=0,softsplit=False,plotall=False,fignum=0):
+    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,plotall=False,fignum=0):
         #if m==0, apply the lookuptable decoder
         if plotall:
             print "Starting decoder of level ", self.m
@@ -396,6 +453,13 @@ class ColorCode:
         
         
         #   RESCALING DECODER
+        
+        
+        # CORNER PROBABILITY UPDATE
+        
+        if cornerupdate:
+            self.updateCornerP()
+        
         
         #   SPLITTING OF SYNDROMES
         #first, do the splitting

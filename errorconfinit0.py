@@ -24,7 +24,7 @@ while log == 0 and attempts <150:
     attempts+=1
     m=1
     code=ColorCode(m,.02)
-    er=[14,49]
+    er=[0,19,39]
     for i in er:
         code.e[i]=1
     code.syndrome()        

@@ -44,7 +44,7 @@ for method in range(1):
         code=ColorCode(1,.01)
         code.e[i]=1
         code.syndrome()    
-        res,loger=code.hardDecoder(splitmethod=method,plotall=True,fignum=27)
+        res,loger=code.hardDecoder(splitmethod=method,plotall=False,fignum=27)
         if res==1:
             #f1.write(str(code.e))
             texter=" "
@@ -56,7 +56,7 @@ for method in range(1):
         code.e[i]=0
     print "Failures with one error: "+str(nerr)+"with method "+methodtext[method]
     
-    '''
+    
     ##################### TWO ERROR CHAINS #################
     nerr=0
     for i in range(len(code.p)):
@@ -64,46 +64,63 @@ for method in range(1):
         code.c[i]=0
     code.s=[0]*(code.L**2)
     for i in range(len(code.e)):
-        code.e[i]=1
         for j in range(i+1,len(code.e)):
+            code=ColorCode(1,.01)
             prev1=code.e[j]
+            code.e[i]=1
             code.e[j]=1
             
             code.syndrome()    
             res,loger=code.hardDecoder(splitmethod=method)
             if res==1:
-                f2.write(str(code.e))
+                #f2.write(str(code.e))
+                erchain=[]
+                for ind in range(len(code.e)):
+                    if code.e[ind]==1:
+                        erchain.append(ind)
+                print "Error configuration: "+str(erchain)
                 nerr+=1    
-            code.e[j]=prev1    
-        code.e[i]=0
+            #code.e[j]=prev1    
+        #code.e[i]=0
         
     print "Failures with 2 errors: "+str(nerr)+"with method "+methodtext[method]
     ##################### 3 ERROR CHAINS #################
+    
     nerr=0
     for i in range(len(code.p)):
         code.e[i]=0
         code.c[i]=0
     code.s=[0]*(code.L**2)
     for i in range(len(code.e)):
-        code.e[i]=1
+        #code.e[i]=1
         for j in range(i+1,len(code.e)):
-            prev1=code.e[j]
-            code.e[j]=1
+            #prev1=code.e[j]
+            #code.e[j]=1
             for k in range(j+1,len(code.e)):
-                prev2=code.e[k]
+                #prev2=code.e[k]
+                
+                code=ColorCode(1,.01)
                 code.e[k]=1
+                code.e[i]=1
+                code.e[j]=1
                 
                 code.syndrome()    
                 res,loger=code.hardDecoder(splitmethod=method)
                 if res==1:
-                    f3.write(str(code.e))
+                    #f3.write(str(code.e))
+                    erchain=[]
+                    for ind in range(len(code.e)):
+                        if code.e[ind]==1:
+                            erchain.append(ind)
+                    print "Error configuration: "+str(erchain)
+                        
                     nerr+=1    
-                code.e[k]=prev2  
-            code.e[j]=prev1        
-        code.e[i]=0
+                #code.e[k]=prev2  
+            #code.e[j]=prev1        
+        #code.e[i]=0
         
     print "Failures with 3 errors: "+str(nerr)+"with method "+methodtext[method]
-    f1.close()
-    f2.close()
-    f3.close()
-    '''
+    #f1.close()
+    #f2.close()
+    #f3.close()
+    

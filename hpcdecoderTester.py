@@ -70,7 +70,7 @@ for j in range(Niter):
         #save current progress
         methodtext=['init0','hard','soft']
         #filename of the temporal progress save
-        filen="./results/ccsavem"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
+        filen="./results/ccum"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
         
         #check if there is an already existing file
         if(os.path.isfile(filen)):
@@ -130,7 +130,7 @@ t/=Niter
 
 methodtext=['init0','hard','soft']
 
-filen="./results/ccm"+str(size)+"Nit"+str(Niter)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
+filen="./results/ccv"+str(size)+"Nit"+str(Niter)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext[method]+".txt"
 
 
 f=open(filen,"w")

@@ -354,8 +354,8 @@ import copy
 
 import copy
 nsteps=17
-nmeas=1000
-nps=100
+nmeas=800
+nps=40
 p1=0.001
 p2=0.09
 P=np.linspace(p1,p2,nps)
