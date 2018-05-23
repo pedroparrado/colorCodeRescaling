@@ -23,12 +23,16 @@ attempts =0
 while log == 0 and attempts <150:
     attempts+=1
     m=1
-    code=ColorCode(m,.02)
-    er=[0,19,39]
+    code=ColorCode(m,.01)
+    er=[0,19,39] # init 0 with corners
+    er=[40,41,64] #method 3
+    er=[7, 18, 43]#method 0
+    er=[1, 27, 61]#method 3
+    er=[0,1,6]#method 4
     for i in er:
         code.e[i]=1
     code.syndrome()        
-    log,loger=code.hardDecoder(splitmethod=0,plotall=True,fignum=0)
+    log,loger=code.hardDecoder(splitmethod=4,cornerupdate=False,plotall=True,fignum=0,beta=10)
     #code.plot(splitting=True)
     print log, loger
 plt.title("init 0 "+str(loger))

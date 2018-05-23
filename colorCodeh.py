@@ -340,6 +340,47 @@ class ColorCode:
             '''
         return nchanges, len(sptoupdate)
             
+            
+    def heatresplit(self,beta=100.):
+        nchanges=0
+        sptoupdate=self.s0s+self.s1s+self.s2s
+        #random updates
+        for i in range(len(sptoupdate)):
+            s=sptoupdate[np.random.randint(0,len(sptoupdate))]
+            prob=self.ps(s)
+            old=self.split[s]
+            
+            if old==0:
+                #if prob<0.5, we change it:
+                if prob<0.5:
+                    self.split[s]=1
+                    nchanges+=1
+                else:
+                    r=np.random.rand()
+                    pacc=np.log(prob/(1.-prob))
+                    pacc=np.exp(-beta*pacc)
+                    assert pacc<=1 and pacc>=0, "acceptance probability wrong"
+                    if r<pacc:
+                        self.split[s]=1
+                        nchanges+=1
+            else:
+                #if prob<0.5, we change it:
+                if prob>0.5:
+                    self.split[s]=0
+                    nchanges+=1
+                else:
+                    r=np.random.rand()
+                    pacc=np.log((1.-prob)/prob)
+                    pacc=np.exp(-beta*pacc)
+                    assert pacc<=1 and pacc>=0, "acceptance probability wrong"
+                    if r<pacc:
+                        self.split[s]=0
+                        nchanges+=1           
+                
+                
+        return nchanges, len(sptoupdate)
+
+            
     def softresplit(self,l=3):
         if l==0:
             sptoupdate=self.s0s
@@ -436,7 +477,17 @@ class ColorCode:
             
         return S/len(splits)
     
-    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,plotall=False,fignum=0):
+    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,plotall=False,fignum=0,beta=50):
+        '''
+        splitmethods:
+        0 init0 hard splitting
+        1 randomized start hard splitting
+        2 soft splitting
+        3 init0 hard splitting twice: first without cornerupdate, then with corner update
+        5 init0 heatsplit
+            
+        '''
+        
         #if m==0, apply the lookuptable decoder
         if plotall:
             print "Starting decoder of level ", self.m
@@ -457,7 +508,7 @@ class ColorCode:
         
         # CORNER PROBABILITY UPDATE
         
-        if cornerupdate:
+        if cornerupdate and splitmethod!=3:
             self.updateCornerP()
         
         
@@ -466,7 +517,7 @@ class ColorCode:
         splitsteps=20
         nchanges=25
         for i in range(len(self.split)):
-            if splitmethod==0:
+            if splitmethod==0 or splitmethod==3 or splitmethod==4:
                 self.split[i]=0
             if splitmethod==1:
                 self.split[i]=np.random.randint(0,2)
@@ -490,11 +541,33 @@ class ColorCode:
             for j in range(17):
                 if softsplit or splitmethod==2:
                     changes,t=self.softresplit()
+                elif splitmethod==4:
+                    changes,t=self.heatresplit()
                 else:
                     changes,t=self.resplit()
                 nchanges+=changes
+            beta+=10
             if plotall:
                 print "changes in splitting: ",nchanges,i
+        if splitmethod==3:
+            #we do the corner update and repeat the splitting
+            self.updateCornerP()
+                
+            i=0
+            nchanges=25
+            while i<splitsteps and nchanges>0:
+                i+=1
+                if plotall:
+                    print "Splitting step part 2",i
+                nchanges=0
+                for j in range(17):
+                    changes,t=self.resplit()
+                    nchanges+=changes
+                if plotall:
+                    print "changes in splitting: ",nchanges,i
+            
+            
+    
             #   DECODING EACH CELL
         #now the decoding of each cell is independent
         

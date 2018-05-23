@@ -19,9 +19,11 @@ import os
 code=ColorCode(1,.01)
 
 
-methodtext=['init0','hard','soft']
+methodtext=['init0','hard','soft','init0corners','heatsplit']
 #1 error configuration
-for method in range(1):
+methods=[4]
+usecorners=False
+for method in methods:
     '''
     filen="errors1"+methodtext[method]+".txt"
     f1=open(filen,"w")    
@@ -44,7 +46,7 @@ for method in range(1):
         code=ColorCode(1,.01)
         code.e[i]=1
         code.syndrome()    
-        res,loger=code.hardDecoder(splitmethod=method,plotall=False,fignum=27)
+        res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,plotall=False,fignum=27,beta=10)
         if res==1:
             #f1.write(str(code.e))
             texter=" "
@@ -71,7 +73,7 @@ for method in range(1):
             code.e[j]=1
             
             code.syndrome()    
-            res,loger=code.hardDecoder(splitmethod=method)
+            res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
             if res==1:
                 #f2.write(str(code.e))
                 erchain=[]
@@ -105,7 +107,7 @@ for method in range(1):
                 code.e[j]=1
                 
                 code.syndrome()    
-                res,loger=code.hardDecoder(splitmethod=method)
+                res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
                 if res==1:
                     #f3.write(str(code.e))
                     erchain=[]
