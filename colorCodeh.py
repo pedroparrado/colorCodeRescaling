@@ -230,7 +230,7 @@ class ColorCode:
             sol.append(iq)
         return sol
     
-    def cornerpe(self,cind):
+    def cornerpe(self,cind,normal):
         #computes pe for every qubit involved in this corner stabilizer
         #and updates the corner probabilities
         
@@ -246,15 +246,20 @@ class ColorCode:
                 pe*=(1.-2.*self.p[q])
             pe=.5-pe
             pes[qubitind]=pe
+            if not normal:
+                pes[qubitind]=9.+.2*s
         
         #now we update the 
         for qubitind in range(6):
             qubit=qubits[qubitind]
             pi=self.p[qubit]
             pe=pes[qubitind]
-            self.p[qubit]=pi*pe/(pi*pe+(1.-pi)*(1.-pe))
+            if normal:
+                self.p[qubit]=pi*pe/(pi*pe+(1.-pi)*(1.-pe))
+            else:
+                self.p[qubit]=pi*pe
         return
-    def updateCornerP(self):
+    def updateCornerP(self,normal=False):
         #updates the probability of error of the corner qubits
         L=self.L
         #we explore all the stabilizers
@@ -264,7 +269,7 @@ class ColorCode:
             ys=i/L
             #only for the corner stabilizers
             if (xs%2==0 and ys%2==0):
-                self.cornerpe(i)
+                self.cornerpe(i,normal)
         return
             
             

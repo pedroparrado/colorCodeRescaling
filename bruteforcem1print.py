@@ -22,7 +22,7 @@ code=ColorCode(1,.01)
 methodtext=['init0','hard','soft','init0corners','heatsplit']
 #1 error configuration
 methods=[4]
-usecorners=False
+usecorners=True
 for method in methods:
     '''
     filen="errors1"+methodtext[method]+".txt"
