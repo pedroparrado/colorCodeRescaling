@@ -247,7 +247,7 @@ class ColorCode:
             pe=.5-pe
             pes[qubitind]=pe
             if not normal:
-                pes[qubitind]=9.+.2*s
+                pes[qubitind]=0.9+.2*s
         
         #now we update the 
         for qubitind in range(6):
@@ -409,9 +409,9 @@ class ColorCode:
                 #CHECK ENERGY
                 '''
                 if prob>0.5:
-                    self.split[s]=1
-                if prob<0.5:
                     self.split[s]=0
+                if prob<0.5:
+                    self.split[s]=1
                 #if prob==0.5:
                 if prob>0.499 and prob <0.501:
                     self.split[s]=np.random.randint(0,2)
@@ -439,9 +439,9 @@ class ColorCode:
             #CHECK ENERGY
             '''
             if prob>0.5:
-                self.split[s]=1
-            if prob<0.5:
                 self.split[s]=0
+            if prob<0.5:
+                self.split[s]=1
             #if prob==0.5:
             if prob>0.499 and prob <0.501:
                 self.split[s]=np.random.randint(0,2)
@@ -843,7 +843,7 @@ class ColorCode:
     ############################################################        
         
     
-    def pupdate(self,synind):
+    def pupdate(self,synind,printthings=False):
         L=self.L        
         #first, we compute the coordinates of the syndrome
         x=synind%L        
@@ -944,17 +944,22 @@ class ColorCode:
             
             sv[st]=su#value for which we have p(s0)
             psu3[j] =self.p3(self.cells[icu],sv[0],sv[1],sv[2])
+            if printthings:
+                print "j ",j
+                print s1,s2,st
+                print sv
             sv[st]=1#always one
             psu13[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
             sv[st]=0#always 0
             psu03[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
-            
             #same for the probability in the other cell
             sv[s1]=(sv1p+cs1[j])%2
             sv[s2]=(sv2p+cs2[j])%2     
             
             sv[st]=sd
             psd3[j] =self.p3(self.cells[icd],sv[0],sv[1],sv[2])
+            if printthings:
+                print sv
             sv[st]=1
             psd13[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
             sv[st]=0

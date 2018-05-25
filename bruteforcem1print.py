@@ -21,7 +21,7 @@ code=ColorCode(1,.01)
 
 methodtext=['init0','hard','soft','init0corners','heatsplit']
 #1 error configuration
-methods=[4]
+methods=[0]
 usecorners=True
 for method in methods:
     '''
@@ -74,13 +74,14 @@ for method in methods:
             
             code.syndrome()    
             res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
-            if res==1:
+            if res==1 or sum(code.c)>2:
                 #f2.write(str(code.e))
                 erchain=[]
                 for ind in range(len(code.e)):
                     if code.e[ind]==1:
                         erchain.append(ind)
                 print "Error configuration: "+str(erchain)
+                print "correction" + str(c)
                 nerr+=1    
             #code.e[j]=prev1    
         #code.e[i]=0
