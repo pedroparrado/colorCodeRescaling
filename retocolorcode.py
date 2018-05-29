@@ -11,6 +11,11 @@ import copy
 
 #plot all states
 import matplotlib.pyplot as plt
+def on_click(event):
+    if event.inaxes is not None:
+        print event.xdata, event.ydata,3
+    else:
+        print 'Clicked ouside axes bounds but inside plot window'
 
 def callback(event):
     print "callback1"

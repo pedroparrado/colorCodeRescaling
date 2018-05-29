@@ -259,7 +259,7 @@ class ColorCode:
             else:
                 self.p[qubit]=pi*pe
         return
-    def updateCornerP(self,normal=False):
+    def updateCornerP(self,normal=True):
         #updates the probability of error of the corner qubits
         L=self.L
         #we explore all the stabilizers
