@@ -354,8 +354,8 @@ import copy
 
 import copy
 nsteps=17
-nmeas=800
-nps=40
+nmeas=8000
+nps=20
 p1=0.001
 p2=0.09
 P=np.linspace(p1,p2,nps)
@@ -509,15 +509,16 @@ Em=Em/nmeas
 
 plt.figure(5)
 plt.clf()
-plt.plot(P,E2,'p-',label="Randomized")
-plt.plot(P,E3,'p-',label="Init at 0")
-plt.plot(P,E,'p-',label="Paralellized")
+
+plt.plot(P,E2,'p',label="Hard splitting")
+plt.plot(P,E3,'p',label="Hard sp. with initial guess")
+#plt.plot(P,E,'p',label="Paralellized")
 
 
-plt.plot(P,Ep2,'d-',label="Soft Randomized")
-plt.plot(P,Ep,'d-',label="Soft Paralellized")
-plt.plot(P,Ep3,'d-',label="Soft init0")
-plt.plot(P,Ep4,'p-',label="Init at min")
+plt.plot(P,Ep2,'d',label="Soft splitting")
+#plt.plot(P,Ep,'d',label="Soft Paralellized")
+#plt.plot(P,Ep3,'d',label="Soft init0")
+#plt.plot(P,Ep4,'p',label="Init at min")
 plt.plot(P,Em,'-.',label="Min Energy")
 
 plt.xlabel("Error probability per qubit")
@@ -527,15 +528,15 @@ plt.legend()
 
 plt.figure(2)
 plt.clf()
-plt.plot(P,count2,'p-',label="Randomized")
-plt.plot(P,count3,'p-',label="Init at 0")
-plt.plot(P,count1,'p-',label="Paralellized")
+plt.plot(P,count2,'p-',label="Hard splitting")
+plt.plot(P,count3,'p-',label="Hard sp. with initial guess")
+#plt.plot(P,count1,'p-',label="Paralellized")
 
 
-plt.plot(P,count5,'d-',label="Soft Randomized")
-plt.plot(P,count4,'d-',label="Soft Paralellized")
-plt.plot(P,count6,'d-',label="Soft init0")
-plt.plot(P,count7,'d-',label="Soft init min")
+plt.plot(P,count5,'d-',label="Soft splitting")
+#plt.plot(P,count4,'d-',label="Soft Paralellized")
+#plt.plot(P,count6,'d-',label="Soft init0")
+#plt.plot(P,count7,'d-',label="Soft init min")
 
 
 plt.xlabel("Error probability per qubit")

@@ -131,7 +131,7 @@ class ColorCode:
                 self.cells.append(Cell(i,L))
         
         
-        
+        #probability of each splitting (for soft splitting)
         self.sp=np.zeros(L**2)+.5
         
         
@@ -409,9 +409,9 @@ class ColorCode:
                 #CHECK ENERGY
                 '''
                 if prob>0.5:
-                    self.split[s]=0
-                if prob<0.5:
                     self.split[s]=1
+                if prob<0.5:
+                    self.split[s]=0
                 #if prob==0.5:
                 if prob>0.499 and prob <0.501:
                     self.split[s]=np.random.randint(0,2)
@@ -456,7 +456,23 @@ class ColorCode:
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
             '''
-        return nchanges, len(sptoupdate)
+        return nchanges, len(sptoupdate)        
+    def singlesoftresplit(self,s):
+        
+        self.sp[s]=self.pupdate(s)#splitprobability
+        prob=self.sp[s]
+        old=self.split[s]
+        
+        if prob>0.5:
+            self.split[s]=1
+        if prob<0.5:
+            self.split[s]=0
+        #if prob==0.5:
+        if prob>0.499 and prob <0.501:
+            self.split[s]=np.random.randint(0,2)
+            
+        return prob
+
     def energy(self,info=False):
         E=0.
         for i in range(len(self.cells)):
@@ -527,7 +543,10 @@ class ColorCode:
             if splitmethod==1:
                 self.split[i]=np.random.randint(0,2)
             if splitmethod==2:
-                self.sp[i]=0.5
+                if self.s[i]==0:
+                    self.sp[i]=0.2
+                else:
+                    self.sp[i]=0.5
         if plotall:
             print "Starting splitting process"
             
