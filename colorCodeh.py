@@ -271,7 +271,59 @@ class ColorCode:
             if (xs%2==0 and ys%2==0):
                 self.cornerpe(i,normal)
         return
+        
+    #utility: find neighboring cells of a syndrome:
+    def neighboringcells(self,synind):
+        
+        L=self.L        
+        #first, we compute the coordinates of the syndrome
+        x=synind%L        
+        y=synind/L
+        
+        #now we compute if it is an horizontal, vertical or diagonal splitting
+        assert x%2!=0 or y%2!=0, "corner syndrome"
+        if x%2==1 and y%2==0:
+            #horizontal syndrome
+            st=0
+            #s1 and s2
+            s1=1
+            s2=2
+            #coordinates of the cells
+            xu=x-1
+            yu=y
+            xd=x-1
+            yd=(y-2)%L
             
+        if x%2==0 and y%2==1:
+            #vertical syndrome
+            st=1
+            #s1 and s2
+            s1=0
+            s2=2
+            #coordinates of the cells
+            xu=x
+            yu=y-1
+            xd=(x-2)%L
+            yd=(y-1)%L
+            
+        if x%2==1 and y%2==1:
+            #diagonal syndrome
+            st=2
+            #s1 and s2
+            s1=0
+            s2=1
+            #coordinates of the cells
+            xu=x-1
+            yu=y-1
+            xd=x-1
+            yd=y-1
+            
+        #index of the neighboring cells    
+        
+        icu=xu+L*yu/2  #cell  up  always has z=0
+        icd=xd+L*yd/2+1#cell down always has z=1
+        return icu,icd
+    
             
     def resplit(self,l=3):
         if l==0:
@@ -385,8 +437,40 @@ class ColorCode:
                 
         return nchanges, len(sptoupdate)
 
+    def randomminsplit(self,nsteps=20):
+        
+        sptoupdate=self.s0s+self.s1s+self.s2s
+        
+        minenergy=1e9
+        minsetup=np.array(self.split)
+        minstep=0
+        
+        for k in range(nsteps):
+                
+            #random updates
+            for i in range(len(sptoupdate)):
+                s=sptoupdate[np.random.randint(0,len(sptoupdate))]
+                prob=self.ps(s)
+                old=self.split[s]            
+                r=np.random.rand()
+                if r<prob:
+                    self.split[s]=0
+                else:
+                    self.split[s]=1
+            energy=self.energy()
+            if energy<minenergy:
+                minsetup=np.array(self.split)
+                minstep=k
+                minenergy=energy
+        
+        self.split=minsetup            
+                
+                
+        return minstep
+
             
     def softresplit(self,l=3):
+        print "Entering Softresplit"
         if l==0:
             sptoupdate=self.s0s
         if l==1:
@@ -456,12 +540,77 @@ class ColorCode:
                     str(plt.figure(10))+str(plt.clf())+self.plot(splitting=True,indexs=True)
             #CHECK ENERGY
             '''
-        return nchanges, len(sptoupdate)        
+        return nchanges, len(sptoupdate)   
+    def softresplitcoordinate(self, nsteps=20):
+        print "Entering Softresplit coordinate"
+        
+        #setting up the initial values
+        
+        sptoupdate=self.s0s+self.s1s+self.s2s
+        for s in sptoupdate:
+            icu,icd=self.neighboringcells(s)
+            #we check the qubits in the "support" of the stabilizer
+            if s in set(s0s):
+                ind1,ind2,ind3=0,1,2
+            if s in set(s1s):
+                ind1,ind2,ind3=0,1,3
+            if s in set(s2s):
+                ind1,ind2,ind3=1,2,3           
+            #upper cell
+            p1=self.p[self.cells[icu].q[ind1]]
+            p2=self.p[self.cells[icu].q[ind2]]
+            p3=self.p[self.cells[icu].q[ind3]]
+            q1=1.-p1
+            q2=1.-p2
+            q3=1.-p3
+            pu=p1*q2*q3+q1*p2*q3+q1*q2*p3+p1*p2*p3
+            qu=1.-pu
+            #lower cell
+            p1=self.p[self.cells[icd].q[ind1]]
+            p2=self.p[self.cells[icd].q[ind2]]
+            p3=self.p[self.cells[icd].q[ind3]]
+            q1=1.-p1
+            q2=1.-p2
+            q3=1.-p3
+            pl=p1*q2*q3+q1*p2*q3+q1*q2*p3+p1*p2*p3
+            ql=1.-pl
+            
+            #now, we compute the initial probability of 
+            #the splitting according to the syndrome
+            if self.s[s]==0:
+                self.sp=qu*ql/(qu*ql+pu*pl)
+            if self.s[s]==1:
+                self.sp=pu*ql/(pu*ql+pu*ql)
+            
+        
+        
+        #soft splitting procedure
+        
+        pchanges=np.zeros(nsteps)
+        
+        for k in range(nsteps):
+            spcopy= np.array(self.sp)
+            #ordered updates               
+            for s in sptoupdate:
+                spcopy[s]=self.pupdate(s)#splitprobability
+                pchanges[k]+=np.abs(spcopy-self.split[s])
+                        
+        for s in sptoupdate:
+            self.sp[s]=spcopy[s]
+            prob=spcopy[s]
+            if prob>0.5:
+                self.split[s]=0
+            if prob<0.5:
+                self.split[s]=1
+            #if prob==0.5:
+            if prob>0.499 and prob <0.501:
+                self.split[s]=np.random.randint(0,2)
+            
+        return pchanges, len(sptoupdate)        
     def singlesoftresplit(self,s):
         
         self.sp[s]=self.pupdate(s)#splitprobability
         prob=self.sp[s]
-        old=self.split[s]
         
         if prob>0.5:
             self.split[s]=1
@@ -497,7 +646,14 @@ class ColorCode:
             S+=-np.log(self.sp[i])*self.sp[i]
             
         return S/len(splits)
-    
+    def helpsplitmethods(self):
+        print "splitmethods:"
+        print "0 init0 hard splitting"
+        print "1 randomized start hard splitting"
+        print "2 soft splitting"
+        print "3 init0 hard splitting twice: first without cornerupdate, then with corner update"
+        print "4 init0 heatsplit"
+        
     def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,plotall=False,fignum=0,beta=50):
         '''
         splitmethods:
@@ -564,6 +720,7 @@ class ColorCode:
             nchanges=0
             for j in range(17):
                 if softsplit or splitmethod==2:
+                    print "Calling softresplit"
                     changes,t=self.softresplit()
                 elif splitmethod==4:
                     changes,t=self.heatresplit()
@@ -913,6 +1070,7 @@ class ColorCode:
 #        
 #        print 'syndrome: ',synind
 #        print 'indexes: ',icu,icd
+#        print 's1, s2: ',s1,s2
 #        print xu,yu,xd,yd
         #index of the related splittings
         is1=self.cells[icu].s[s1]

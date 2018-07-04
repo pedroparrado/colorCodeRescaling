@@ -104,8 +104,8 @@ np.save(filen,E)
 
 code=ColorCode(1,.01)
 nsteps=10
-Niter=5000
-nsizes=3
+Niter=500
+nsizes=2
 
 P=np.linspace(0.001,0.03,nsteps)
 startime=time.time()
@@ -119,7 +119,7 @@ for i in range(nsteps):
     p=P[i]
     for j in range(Niter):
         for k in range(nsizes):
-            res,loger=codes[k].simulation(p)
+            res,loger=codes[k].simulation(p,method=2)
             E[i,k,0]+=res
             E[i,k,1]+=loger[0]
             E[i,k,2]+=loger[1]

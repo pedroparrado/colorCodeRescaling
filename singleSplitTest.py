@@ -19,7 +19,7 @@ import copy
 p=0.05
 q=1.-p
 
-ps=0.5
+ps=0.75
 qs=1.-ps
 
 
@@ -52,11 +52,11 @@ psu=p0**2/(p0**2+(1.-p0)**2)
 
 #Second, we need to generate the code
 
-code=ColorCode(0,p)
-
+code=ColorCode(1,p)
+code.sp=code.sp*0.0+ps
 prob=code.singlesoftresplit(1)
-
-print "theory",psu
+#code.hardDecoder(splitmethod=2)
+print "theory ",psu
 print "program", prob
 
 
