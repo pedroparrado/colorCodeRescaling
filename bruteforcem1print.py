@@ -19,9 +19,9 @@ import os
 code=ColorCode(1,.01)
 
 
-methodtext=['init0','hard','soft','init0corners','heatsplit']
+methodtext=['init0','hard','soft','init0corners','heatsplit','hard minexplore', 'softcoordinate']
 #1 error configuration
-methods=[0]
+methods=[6]
 usecorners=True
 for method in methods:
     '''
@@ -53,6 +53,8 @@ for method in methods:
             for ki in range(len(code.e)):
                 if code.e[ki]==1:
                     texter+=str(ki)+" "
+                    
+            print "Error found for method "+str(method)+" with corners: "+str(usecorners)
             print "Failure at error: "+texter+"  "+str(sum(code.c))+"\n \n"
             nerr+=1        
         code.e[i]=0
@@ -68,20 +70,24 @@ for method in methods:
     for i in range(len(code.e)):
         for j in range(i+1,len(code.e)):
             code=ColorCode(1,.01)
-            prev1=code.e[j]
             code.e[i]=1
             code.e[j]=1
             
             code.syndrome()    
             res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
-            if res==1 or sum(code.c)>2:
+            if res==1:
                 #f2.write(str(code.e))
                 erchain=[]
+                correctionapplied=[]
                 for ind in range(len(code.e)):
                     if code.e[ind]==1:
                         erchain.append(ind)
+                    if code.c[ind]==1:
+                        correctionapplied.append(ind)
+                print "Error found for method "+str(method)+" with corners: "+str(usecorners)
                 print "Error configuration: "+str(erchain)
-                print "correction" + str(c)
+                print "corrections: " + str(correctionapplied)
+                print " "
                 nerr+=1    
             #code.e[j]=prev1    
         #code.e[i]=0
@@ -112,11 +118,18 @@ for method in methods:
                 if res==1:
                     #f3.write(str(code.e))
                     erchain=[]
+                    correctionapplied=[]
                     for ind in range(len(code.e)):
                         if code.e[ind]==1:
                             erchain.append(ind)
+                        if code.c[ind]==1:
+                            correctionapplied.append(ind)
+                            
+                    print "Error found for method "+str(method)+" with corners: "+str(usecorners)
                     print "Error configuration: "+str(erchain)
                         
+                    print "corrections: " + str(correctionapplied)
+                    print " "
                     nerr+=1    
                 #code.e[k]=prev2  
             #code.e[j]=prev1        

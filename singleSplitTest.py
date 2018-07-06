@@ -19,7 +19,7 @@ import copy
 p=0.05
 q=1.-p
 
-ps=0.75
+ps=0.97602226
 qs=1.-ps
 
 
