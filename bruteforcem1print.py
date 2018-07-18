@@ -131,6 +131,13 @@ for method in methods:
                     print "corrections: " + str(correctionapplied)
                     print " "
                     nerr+=1    
+                    if nerr>10:
+                        print "more than 10 3-error configurations"
+                        break
+            if nerr>10:
+                        break
+        if nerr>10:
+            break
                 #code.e[k]=prev2  
             #code.e[j]=prev1        
         #code.e[i]=0

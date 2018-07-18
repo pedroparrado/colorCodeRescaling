@@ -29,7 +29,7 @@ while log == 0 and attempts <150:
     #er=[0,4,7]#method 0 corners
     #er=[3,38]
     er=[1,2]#method 5 no corners
-    er=[1,2,27]#method 6 no corners
+    er=[0,1,6]#method 6 no corners
     for i in er:
         code.e[i]=1
     code.syndrome()        

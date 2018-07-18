@@ -470,7 +470,7 @@ class ColorCode:
 
             
     def softresplit(self,l=3):
-        print "Entering Softresplit"
+        #print "Entering Softresplit"
         if l==0:
             sptoupdate=self.s0s
         if l==1:
