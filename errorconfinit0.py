@@ -33,7 +33,7 @@ while log == 0 and attempts <150:
     for i in er:
         code.e[i]=1
     code.syndrome()        
-    log,loger=code.hardDecoder(splitmethod=5,cornerupdate=False,plotall=True,fignum=0,beta=10)
+    log,loger=code.hardDecoder(splitmethod=5,cornerupdate=False,softRescaling=True,plotall=True,fignum=0,beta=10)
     #code.plot(splitting=True)
     print log, loger
     #if sum(code.c)>2:

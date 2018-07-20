@@ -712,7 +712,7 @@ class ColorCode:
                 self.cells[i].pe=p0/(p0+p1)
                 
             if softRescProb:
-                self.cells[i].pe=self.cellSoftRescale(cells[i].corr,i)
+                self.cells[i].pe=self.cellSoftRescale(self.cells[i].corr,i)
             
             #translate the correction to the code
             for j in range(4):
@@ -787,20 +787,20 @@ class ColorCode:
             #and a denominator, consisting in the first factor plus X
             
             #let us compute the numerator (correction+table):
-            combination=self.psoft[iterm]+cor
-            combinationX=combination+xop
+            combination=(self.psoft[iterm]+cor)%2
+            combinationX=(combination+xop)%2
             num=1.
             den=1.
             for i in range(4):
-                num*=pqs[i,combination[i]]
-                den*=pqs[i,combinationX[i]]
+                num*=pqs[i,int(combination[i])]
+                den*=pqs[i,int(combinationX[i])]
             den=num+den
             
             #lets compute now the factor due to the splitting prob
             
             splitf=1.
             for i in range(3):
-                splitf*=ps[i,self.ssoft[iterm][i]]
+                splitf*=ps[i,int(self.ssoft[iterm][i])]
                 
             #now, we just need to multiply the factors:
             
