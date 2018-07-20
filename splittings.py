@@ -18,8 +18,8 @@ import copy
 #testing the splitting methods
 
 nps=10
-nmeas=1000
-m=2
+nmeas=10000
+m=3
 
 P=np.linspace(.001,.15,nps)
 

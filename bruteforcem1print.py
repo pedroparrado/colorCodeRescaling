@@ -23,6 +23,7 @@ methodtext=['init0','hard','soft','init0corners','heatsplit','hard minexplore', 
 #1 error configuration
 methods=[6]
 usecorners=True
+softRescale=True
 for method in methods:
     '''
     filen="errors1"+methodtext[method]+".txt"
@@ -46,7 +47,7 @@ for method in methods:
         code=ColorCode(1,.01)
         code.e[i]=1
         code.syndrome()    
-        res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,plotall=False,fignum=27,beta=10)
+        res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,plotall=False,fignum=27,beta=10)
         if res==1:
             #f1.write(str(code.e))
             texter=" "

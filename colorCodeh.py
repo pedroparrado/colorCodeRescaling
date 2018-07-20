@@ -177,6 +177,11 @@ class ColorCode:
         self.logic.append(bluevertical)    
         
         
+        #tables of soft rescaling
+        self.psoft=[]
+        self.ssoft=[]
+        
+        
     def checkLogError(self):
         loger=[0,0,0,0]
         for j in range(len(self.logic)):
@@ -665,8 +670,149 @@ class ColorCode:
         print "5 hard decoder random choice"
         print "6 soft decoder coordinate"
         
+    def cellCorrectionAndRescaleProb(self,softRescProb=True):
         
-    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,plotall=False,fignum=0,beta=50):
+        
+        for i in range(len(self.cells)):
+            #for each cell
+            
+            #recover the probabilities of each qubit
+            
+            qs=self.cells[i].q
+            p=np.zeros(4)
+            q=np.zeros(4)
+            for j in range(len(qs)):
+                p[j]=self.p[qs[j]]
+                q[j]=1.-p[j]
+            
+            #recover the half syndromes
+            
+            ss=self.cells[i].s
+            s0=self.spt[self.s[ss[0]]][self.split[ss[0]]][self.cells[i].z]
+            s1=self.spt[self.s[ss[1]]][self.split[ss[1]]][self.cells[i].z]
+            s2=self.spt[self.s[ss[2]]][self.split[ss[2]]][self.cells[i].z]
+            
+            #find the 2 possibilities from the lookuptable
+            
+            options=lut4(s0,s1,s2)
+            
+            #compute each probability
+            p0=1.#p**np.array(options[0])*q**np.array(1-options[0])
+            p1=1.#p**np.array(options[1])*q**np.array(1-options[1])
+            for j in range(4):
+                p0*=p[j]**options[0][j]*q[j]**(1-options[0][j])
+                p1*=p[j]**options[1][j]*q[j]**(1-options[1][j])
+            
+            #apply the best option
+            if p0>p1:
+                self.cells[i].corr=list(options[0])
+                self.cells[i].pe=p1/(p0+p1)
+            else:
+                self.cells[i].corr=list(options[1])
+                self.cells[i].pe=p0/(p0+p1)
+                
+            if softRescProb:
+                self.cells[i].pe=self.cellSoftRescale(cells[i].corr,i)
+            
+            #translate the correction to the code
+            for j in range(4):
+                qubit=self.cells[i].q[j]
+                self.c[qubit]=int((self.c[qubit]+self.cells[i].corr[j])%2) 
+        return
+    
+    
+    def cellSoftRescale(self,correction, cellid):
+        
+        #first we find the data we need
+        
+        #we put the correction in the correct notation
+        cor=np.zeros(4)
+        cor[0]=correction[0]
+        cor[1]=correction[2]
+        cor[2]=correction[3]
+        cor[3]=correction[1]
+        #and we save the x operator
+        xop=np.array([1,1,1,0])
+        
+        #the error probabilities of the qubits:  
+        
+        pqs=np.zeros((4,2))
+        #note the change in notation
+        pqs[0,0]=self.p[self.cells[cellid].q[0]]
+        pqs[1,0]=self.p[self.cells[cellid].q[2]]
+        pqs[2,0]=self.p[self.cells[cellid].q[3]]
+        pqs[3,0]=self.p[self.cells[cellid].q[1]]
+        for i in range(4):
+            pqs[i,1]=1.-pqs[i,0]
+        
+        #the splitting probabilities
+        
+        ps=np.zeros((3,2))
+        for i in range(3):
+            if (self.split[self.cells[cellid].s[i]]==0):
+                ps[i,0]=self.sp[self.cells[cellid].s[i]]
+                ps[i,1]=1.-self.sp[self.cells[cellid].s[i]]
+            else:
+                ps[i,1]=self.sp[self.cells[cellid].s[i]]
+                ps[i,0]=1.-self.sp[self.cells[cellid].s[i]]
+                
+        #the table of equivalencies
+        if len(self.psoft)==0:
+                
+            self.psoft=[np.array([1,1,1,0]),
+               np.array([1,0,0,1]),
+               np.array([0,1,0,1]),
+               np.array([0,0,1,1]),
+               np.array([1,0,0,0]),
+               np.array([0,1,0,0]),
+               np.array([0,0,1,0]),
+               np.array([1,1,1,1]) 
+                    ]
+            self.ssoft=[np.array([0,0,0]),
+               np.array([0,0,1]),
+               np.array([0,1,0]),
+               np.array([1,0,0]),
+               np.array([1,1,0]),
+               np.array([1,0,1]),
+               np.array([0,1,1]),
+               np.array([1,1,1]),         
+               ]
+        #now that we have everything we need, we proceed to compute the rescaling probability
+        #which consists on 8 terms
+        presc=0.0
+        for iterm in range(8):
+            
+            #each term has a factor due to the error prob on the qubits.
+            #a factor due to the splitting probabilities,
+            #and a denominator, consisting in the first factor plus X
+            
+            #let us compute the numerator (correction+table):
+            combination=self.psoft[iterm]+cor
+            combinationX=combination+xop
+            num=1.
+            den=1.
+            for i in range(4):
+                num*=pqs[i,combination[i]]
+                den*=pqs[i,combinationX[i]]
+            den=num+den
+            
+            #lets compute now the factor due to the splitting prob
+            
+            splitf=1.
+            for i in range(3):
+                splitf*=ps[i,self.ssoft[iterm][i]]
+                
+            #now, we just need to multiply the factors:
+            
+            presc+=num*splitf/den
+        
+        #after adding the 8 factors, we have the probability of the rescaled cell
+        return presc
+            
+                
+                
+                
+    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50):
         '''
         splitmethods:
         0 init0 hard splitting
@@ -776,7 +922,8 @@ class ColorCode:
     
             #   DECODING EACH CELL
         #now the decoding of each cell is independent
-        
+        self.cellCorrectionAndRescaleProb(softRescaling)
+        '''
         for i in range(len(self.cells)):
             #for each cell
             
@@ -819,7 +966,7 @@ class ColorCode:
             for j in range(4):
                 qubit=self.cells[i].q[j]
                 self.c[qubit]=int((self.c[qubit]+self.cells[i].corr[j])%2)
-            
+        '''
         # CREATING THE RENORMALIZED CODE
         newcode=ColorCode(self.m-1,0.)
         assert len(self.cells)==len(newcode.p), 'Wrong match between rescaling'
