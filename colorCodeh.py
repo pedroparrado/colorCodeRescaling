@@ -812,7 +812,7 @@ class ColorCode:
                 
                 
                 
-    def hardDecoder(self,splitmethod=0,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50):
+    def hardDecoder(self,splitmethod=6,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50):
         '''
         splitmethods:
         0 init0 hard splitting
@@ -1697,7 +1697,7 @@ class ColorCode:
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
         return ""
     
-    def simulation(self,per=-1,method=0):
+    def simulation(self,per=-1,method=6,usecorners=True,softRescale=True):
         if per==-1:
             per=self.p[0]
         
@@ -1714,7 +1714,7 @@ class ColorCode:
         self.syndrome()
         
         #decoder
-        return self.hardDecoder(splitmethod=method)
+        return self.hardDecoder(splitmethod=method,usecorners=usecorners,softRescaling=softRescale)
         
 
             

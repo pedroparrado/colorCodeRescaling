@@ -47,7 +47,7 @@ for method in methods:
         code=ColorCode(1,.01)
         code.e[i]=1
         code.syndrome()    
-        res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,plotall=False,fignum=27,beta=10)
+        res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,plotall=False,fignum=27)
         if res==1:
             #f1.write(str(code.e))
             texter=" "
@@ -75,7 +75,7 @@ for method in methods:
             code.e[j]=1
             
             code.syndrome()    
-            res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
+            res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10)
             if res==1:
                 #f2.write(str(code.e))
                 erchain=[]
@@ -115,7 +115,7 @@ for method in methods:
                 code.e[j]=1
                 
                 code.syndrome()    
-                res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,beta=10)
+                res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10)
                 if res==1:
                     #f3.write(str(code.e))
                     erchain=[]
