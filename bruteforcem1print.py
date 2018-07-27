@@ -75,7 +75,7 @@ for method in methods:
             code.e[j]=1
             
             code.syndrome()    
-            res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10)
+            res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10,splitsteps=15)
             if res==1:
                 #f2.write(str(code.e))
                 erchain=[]
@@ -115,7 +115,7 @@ for method in methods:
                 code.e[j]=1
                 
                 code.syndrome()    
-                res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10)
+                res,loger=code.hardDecoder(splitmethod=method,cornerupdate=usecorners,softRescaling=softRescale,beta=10,splitsteps=15)
                 if res==1:
                     #f3.write(str(code.e))
                     erchain=[]

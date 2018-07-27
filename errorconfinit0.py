@@ -30,10 +30,12 @@ while log == 0 and attempts <150:
     #er=[3,38]
     er=[1,2]#method 5 no corners
     er=[0,1,6]#method 6 no corners
+    er=[0,1,18]#softrescale
+    er=[0,5,10]
     for i in er:
         code.e[i]=1
     code.syndrome()        
-    log,loger=code.hardDecoder(splitmethod=5,cornerupdate=False,softRescaling=True,plotall=True,fignum=0,beta=10)
+    log,loger=code.hardDecoder(splitmethod=6,cornerupdate=True,softRescaling=True,plotall=True,fignum=0,beta=10,splitsteps=15)
     #code.plot(splitting=True)
     print log, loger
     #if sum(code.c)>2:

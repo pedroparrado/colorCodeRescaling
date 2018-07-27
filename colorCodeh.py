@@ -288,11 +288,6 @@ class ColorCode:
         #now we compute if it is an horizontal, vertical or diagonal splitting
         assert x%2!=0 or y%2!=0, "corner syndrome"
         if x%2==1 and y%2==0:
-            #horizontal syndrome
-            st=0
-            #s1 and s2
-            s1=1
-            s2=2
             #coordinates of the cells
             xu=x-1
             yu=y
@@ -300,11 +295,6 @@ class ColorCode:
             yd=(y-2)%L
             
         if x%2==0 and y%2==1:
-            #vertical syndrome
-            st=1
-            #s1 and s2
-            s1=0
-            s2=2
             #coordinates of the cells
             xu=x
             yu=y-1
@@ -312,11 +302,6 @@ class ColorCode:
             yd=(y-1)%L
             
         if x%2==1 and y%2==1:
-            #diagonal syndrome
-            st=2
-            #s1 and s2
-            s1=0
-            s2=1
             #coordinates of the cells
             xu=x-1
             yu=y-1
@@ -456,7 +441,7 @@ class ColorCode:
             for i in range(len(sptoupdate)):
                 s=sptoupdate[np.random.randint(0,len(sptoupdate))]
                 prob=self.ps(s)
-                old=self.split[s]            
+                #old=self.split[s]            
                 r=np.random.rand()
                 if r<prob:
                     self.split[s]=0
@@ -550,7 +535,7 @@ class ColorCode:
     
     
     
-    def softresplitcoordinate(self, nsteps=8):
+    def softresplitcoordinate(self, nsteps=8,meanvalue=True):
         #print "Entering Softresplit coordinate"
         
         #setting up the initial values
@@ -604,7 +589,10 @@ class ColorCode:
             for s in sptoupdate:
                 spcopy[s]=self.pupdate(s)#splitprobability
                 pchanges[k]+=np.abs(spcopy[s]-self.sp[s])
-                          
+                
+                if meanvalue and k==(nsteps-1):
+                    spcopy[s]=(spcopy[s]+self.sp[s])/2.
+            
             for s in sptoupdate:
                 self.sp[s]=spcopy[s] 
                 
@@ -621,6 +609,8 @@ class ColorCode:
                 self.split[s]=np.random.randint(0,2)
             
         return pchanges      
+    
+    
     def singlesoftresplit(self,s):
         
         self.sp[s]=self.pupdate(s)#splitprobability
@@ -670,7 +660,7 @@ class ColorCode:
         print "5 hard decoder random choice"
         print "6 soft decoder coordinate"
         
-    def cellCorrectionAndRescaleProb(self,softRescProb=True):
+    def cellCorrectionAndRescaleProb(self,softRescProb=True, plotall=False):
         
         
         for i in range(len(self.cells)):
@@ -712,7 +702,7 @@ class ColorCode:
                 self.cells[i].pe=p0/(p0+p1)
                 
             if softRescProb:
-                self.cells[i].pe=self.cellSoftRescale(self.cells[i].corr,i)
+                self.cells[i].pe=self.cellSoftRescale(self.cells[i].corr,i,plotall)
             
             #translate the correction to the code
             for j in range(4):
@@ -721,7 +711,7 @@ class ColorCode:
         return
     
     
-    def cellSoftRescale(self,correction, cellid):
+    def cellSoftRescale(self,correction, cellid,plotall=False):
         
         #first we find the data we need
         
@@ -738,13 +728,14 @@ class ColorCode:
         
         pqs=np.zeros((4,2))
         #note the change in notation
-        pqs[0,0]=self.p[self.cells[cellid].q[0]]
-        pqs[1,0]=self.p[self.cells[cellid].q[2]]
-        pqs[2,0]=self.p[self.cells[cellid].q[3]]
-        pqs[3,0]=self.p[self.cells[cellid].q[1]]
+        pqs[0,0]=1.-self.p[self.cells[cellid].q[0]]
+        pqs[1,0]=1.-self.p[self.cells[cellid].q[2]]
+        pqs[2,0]=1.-self.p[self.cells[cellid].q[3]]
+        pqs[3,0]=1.-self.p[self.cells[cellid].q[1]]
         for i in range(4):
             pqs[i,1]=1.-pqs[i,0]
-        
+        if plotall:
+            print pqs
         #the splitting probabilities
         
         ps=np.zeros((3,2))
@@ -756,6 +747,8 @@ class ColorCode:
                 ps[i,1]=self.sp[self.cells[cellid].s[i]]
                 ps[i,0]=1.-self.sp[self.cells[cellid].s[i]]
                 
+        if plotall:
+            print ps
         #the table of equivalencies
         if len(self.psoft)==0:
                 
@@ -805,6 +798,17 @@ class ColorCode:
             #now, we just need to multiply the factors:
             
             presc+=num*splitf/den
+            if plotall:
+                print "Combination, combinationX"
+                print combination,combinationX
+                print num, den
+                print num/den
+                print "splittings"
+                print splitf
+                print "total term"
+                print num*splitf/den
+                
+    
         
         #after adding the 8 factors, we have the probability of the rescaled cell
         return presc
@@ -812,7 +816,7 @@ class ColorCode:
                 
                 
                 
-    def hardDecoder(self,splitmethod=6,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50):
+    def hardDecoder(self,splitmethod=6,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50,splitsteps=20):
         '''
         splitmethods:
         0 init0 hard splitting
@@ -852,7 +856,6 @@ class ColorCode:
         #   SPLITTING OF SYNDROMES
         #first, do the splitting
         
-        splitsteps=20
         nchanges=25
         
         #initial condition
@@ -875,29 +878,26 @@ class ColorCode:
             print "Starting splitting process"
             
         i=0
-        while i<splitsteps and nchanges>0:
-            i+=1
-            if plotall:
-                print "Splitting step ",i
-            '''
-            c0,t=self.resplit(0)
-            c1,t=self.resplit(1)
-            c2,t=self.resplit(2)
-            nchanges=c1+c2+c0
-            '''
-            nchanges=0
-            for j in range(17):
-                if softsplit or splitmethod==2:
-                    print "Calling softresplit"
-                    changes,t=self.softresplit()
-                elif splitmethod==4:
-                    changes,t=self.heatresplit()
-                else:
-                    changes,t=self.resplit()
-                nchanges+=changes
-            beta+=10
-            if plotall:
-                print "changes in splitting: ",nchanges,i
+        if splitmethod <5:                
+            while i<splitsteps and nchanges>0:
+                i+=1
+                '''
+                c0,t=self.resplit(0)
+                c1,t=self.resplit(1)
+                c2,t=self.resplit(2)
+                nchanges=c1+c2+c0
+                '''
+                nchanges=0
+                for j in range(17):
+                    if softsplit or splitmethod==2:
+                        print "Calling softresplit"
+                        changes,t=self.softresplit()
+                    elif splitmethod==4:
+                        changes,t=self.heatresplit()
+                    else:
+                        changes,t=self.resplit()
+                    nchanges+=changes
+                beta+=10
         if splitmethod==3:
             #we do the corner update and repeat the splitting
             self.updateCornerP()
@@ -912,17 +912,17 @@ class ColorCode:
                 for j in range(17):
                     changes,t=self.resplit()
                     nchanges+=changes
-                if plotall:
-                    print "changes in splitting: ",nchanges,i
+                    
         if splitmethod==5:
             self.randomminsplit(splitsteps)
+            
         if splitmethod==6:
             self.softresplitcoordinate(splitsteps)
             
     
             #   DECODING EACH CELL
         #now the decoding of each cell is independent
-        self.cellCorrectionAndRescaleProb(softRescaling)
+        self.cellCorrectionAndRescaleProb(softRescaling,plotall=False)
         '''
         for i in range(len(self.cells)):
             #for each cell
@@ -973,6 +973,12 @@ class ColorCode:
         for i in range(len(self.cells)):
             #for each cell in the new code we have a new probability
             newcode.p[i]=self.cells[i].pe
+        if plotall:
+                
+            print "error probabilities in the new code:"
+            print newcode.p
+            
+        
         #we also need to pass on the syndromes of the corners
         for i in range(newcode.L**2):
             #we compute the coordinates in the new code
@@ -1697,7 +1703,7 @@ class ColorCode:
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
         return ""
     
-    def simulation(self,per=-1,method=6,usecorners=True,softRescale=True):
+    def simulation(self,per=-1,method=6,corners=True,softRescale=True):
         if per==-1:
             per=self.p[0]
         
@@ -1714,7 +1720,7 @@ class ColorCode:
         self.syndrome()
         
         #decoder
-        return self.hardDecoder(splitmethod=method,usecorners=usecorners,softRescaling=softRescale)
+        return self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale)
         
 
             
