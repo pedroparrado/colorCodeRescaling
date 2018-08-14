@@ -109,10 +109,10 @@ from colorCodeh import *
 
 code=ColorCode(1,.01)
 nsteps=10
-Niter=500
-nsizes=2
+Niter=5000
+nsizes=4
 
-P=np.linspace(0.001,0.03,nsteps)
+P=np.linspace(0.001,0.09,nsteps)
 startime=time.time()
 E=np.zeros((nsteps,nsizes,5))
 codes=[]
@@ -124,7 +124,7 @@ for i in range(nsteps):
     p=P[i]
     for j in range(Niter):
         for k in range(nsizes):
-            res,loger=codes[k].simulation(p,method=6,usecorners=True,softRescale=True)
+            res,loger=codes[k].simulation(p)
             E[i,k,0]+=res
             E[i,k,1]+=loger[0]
             E[i,k,2]+=loger[1]

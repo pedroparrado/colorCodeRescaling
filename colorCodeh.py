@@ -9,6 +9,7 @@ Created on Mon Feb 12 17:17:54 2018
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import math
 
 #lookuptable for a 18 qubit basic code
 lut18=np.load("lookuptable18.npy")
@@ -728,14 +729,16 @@ class ColorCode:
         
         pqs=np.zeros((4,2))
         #note the change in notation
-        pqs[0,0]=1.-self.p[self.cells[cellid].q[0]]
-        pqs[1,0]=1.-self.p[self.cells[cellid].q[2]]
-        pqs[2,0]=1.-self.p[self.cells[cellid].q[3]]
-        pqs[3,0]=1.-self.p[self.cells[cellid].q[1]]
+        #the max( * ,1e-12) are there to secure there are no 0's 
+        pqs[0,0]=max(1.-max(self.p[self.cells[cellid].q[0]],1e-12),1e-12)
+        pqs[1,0]=max(1.-max(self.p[self.cells[cellid].q[2]],1e-12),1e-12)
+        pqs[2,0]=max(1.-max(self.p[self.cells[cellid].q[3]],1e-12),1e-12)
+        pqs[3,0]=max(1.-max(self.p[self.cells[cellid].q[1]],1e-12),1e-12)
         for i in range(4):
-            pqs[i,1]=1.-pqs[i,0]
+            pqs[i,1]=max(1.-max(pqs[i,0],1e-12),1e-12)
         if plotall:
             print pqs
+        
         #the splitting probabilities
         
         ps=np.zeros((3,2))
@@ -809,7 +812,12 @@ class ColorCode:
                 print num*splitf/den
                 
     
-        
+        if np.any(math.isnan(presc))and plotall==False:
+            print "  "
+            print "NaN found" 
+            print "  "
+            
+            self.cellSoftRescale(correction, cellid,plotall=True)
         #after adding the 8 factors, we have the probability of the rescaled cell
         return presc
             
@@ -1098,7 +1106,7 @@ class ColorCode:
             plt.clf()
             self.plot()
             plt.title("Invalid Syndrome")
-            assert len(emax)>0, 'Invalid syndrome'
+            assert len(emax)>0, 'Invalid syndrome, '+str(self.e)
         cor=emax[0]
         if len(emax)>1:
             cor=emax[np.random.randint(len(emax))]
@@ -1258,15 +1266,15 @@ class ColorCode:
         
         
         #the factors p(s1), p(s2),p(s1'),p(s2')
-        p=self.sp[is1]
-        assert p<=1.and p>=0, 'incorrect value of p '+str(p)+' '+str(is1)
+        p=min(max(self.sp[is1],1e-12),1.-1e-12)
+        assert p<=1.001 and p>=0, 'incorrect value of p '+str(p)+' '+str(is1)
         ps1=np.array(  [p,  p,1-p,1-p])
-        p=self.sp[is2]        
-        assert p<=1.and p>=0, 'incorrect value of p '+str(p)+' '+str(is2)
+        p=min(max(self.sp[is2],1e-12)  ,1.-1e-12)  
+        assert p<=1.001 and p>=0, 'incorrect value of p '+str(p)+' '+str(is2)
         ps2=np.array(  [p,1-p,  p,1-p])
-        p=self.sp[is1p]
+        p=min(max(self.sp[is1p],1e-12),1.-1e-12)
         ps1p=np.array( [p,  p,1-p,1-p])
-        p=self.sp[is2p]
+        p=min(max(self.sp[is2p],1e-12),1.-1e-12)
         ps2p=np.array( [p,1-p,  p,1-p])
                         
         psu3=np.zeros(4)
@@ -1280,10 +1288,10 @@ class ColorCode:
         #splitting for [syndrome value][0, as that contributes with p(s1)][z of cell]
         su=  self.spt[self.s[synind]][0][0]
         sd=  self.spt[self.s[synind]][0][1]
-        sv1= self.spt[self.s[is1]][0][0]
-        sv2= self.spt[self.s[is2]][0][0]
-        sv1p=self.spt[self.s[is1p]][0][1]
-        sv2p=self.spt[self.s[is2p]][0][1]
+        sv1= self.spt[self.s[is1]][0][0]   
+        sv2= self.spt[self.s[is2]][0][0]   
+        sv1p=self.spt[self.s[is1p]][0][1]  
+        sv2p=self.spt[self.s[is2p]][0][1]  
         
         sv=[0,0,0]#initialization
         
@@ -1298,27 +1306,27 @@ class ColorCode:
             sv[s2]=(sv2+cs2[j])%2     
             
             sv[st]=su#value for which we have p(s0)
-            psu3[j] =self.p3(self.cells[icu],sv[0],sv[1],sv[2])
+            psu3[j] =min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]) ,1e-12),1.-1e-12)
             if printthings:
                 print "j ",j
                 print s1,s2,st
                 print sv
             sv[st]=1#always one
-            psu13[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
+            psu13[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
             sv[st]=0#always 0
-            psu03[j]=self.p3(self.cells[icu],sv[0],sv[1],sv[2])
+            psu03[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
             #same for the probability in the other cell
             sv[s1]=(sv1p+cs1[j])%2
             sv[s2]=(sv2p+cs2[j])%2     
             
             sv[st]=sd
-            psd3[j] =self.p3(self.cells[icd],sv[0],sv[1],sv[2])
+            psd3[j] =min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
             if printthings:
                 print sv
             sv[st]=1
-            psd13[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
+            psd13[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
             sv[st]=0
-            psd03[j]=self.p3(self.cells[icd],sv[0],sv[1],sv[2])
+            psd03[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
         
         psu=np.sum(psu3*ps1 *ps2 /(psu13+psu03))        
         psd=np.sum(psd3*ps1p*ps2p/(psd13+psd03))
@@ -1326,8 +1334,8 @@ class ColorCode:
         newp=psu*psd/(psu*psd+(1.-psu)*(1.-psd))
         
         
-        assert psu>=0 and psu<=1., 'incorrect value of psu: '+str(psu)
-        assert self.sp[synind]>=0 and self.sp[synind]<=1.,  'incorrect value of new p: '+str(self.sp[synind])+' '+str(synind)
+        assert psu>=0 and psu<=1.0001, 'incorrect value of psu: '+str(psu)
+        assert newp>=0 and newp<=1.0001, 'incorrect value of newp: '+str(newp)+' '+str(synind)
         return newp
     
     
@@ -1343,8 +1351,8 @@ class ColorCode:
         p1=1.
         p2=1.
         for i in range(4):  #we compute p(s0s1s2)
-            p1*=self.pq(self.p[qubits[i]],sol[0][i])
-            p2*=self.pq(self.p[qubits[i]],sol[1][i])
+            p1*=min(max(self.pq(self.p[qubits[i]],sol[0][i]),1e-12),1-1e-12)
+            p2*=min(max(self.pq(self.p[qubits[i]],sol[1][i]),1e-12),1-1e-12)
         return p1+p2
     
     #probability p(s0 | s1s2)  #the ind choose which one is in the front
@@ -1436,7 +1444,7 @@ class ColorCode:
         pd=self.pc3(celld,svd[0],svd[1],svd[2],inds)
           
         #then the final probability is:
-        return pu*pd/(pu*pd+ (1-pu)*(1-pd))
+        return min(max(pu*pd/(pu*pd+ (1-pu)*(1-pd)),1e-12),1-1e-12)
             
                 
     
