@@ -51,7 +51,6 @@ class Cell:
 
         self.z=z
         
-        
         #probability of error of the cell after renormalization
         self.pe=0.5#random initial value
         
@@ -181,6 +180,10 @@ class ColorCode:
         #tables of soft rescaling
         self.psoft=[]
         self.ssoft=[]
+        
+        
+        
+        self.newcode=ColorCode(self.m-1,0.)
         
         
     def checkLogError(self):
@@ -976,31 +979,31 @@ class ColorCode:
                 self.c[qubit]=int((self.c[qubit]+self.cells[i].corr[j])%2)
         '''
         # CREATING THE RENORMALIZED CODE
-        newcode=ColorCode(self.m-1,0.)
-        assert len(self.cells)==len(newcode.p), 'Wrong match between rescaling'
+        
+        assert len(self.cells)==len(self.newcode.p), 'Wrong match between rescaling'
         for i in range(len(self.cells)):
             #for each cell in the new code we have a new probability
-            newcode.p[i]=self.cells[i].pe
+            self.newcode.p[i]=self.cells[i].pe
         if plotall:
                 
             print "error probabilities in the new code:"
-            print newcode.p
+            print self.newcode.p
             
         
         #we also need to pass on the syndromes of the corners
-        for i in range(newcode.L**2):
+        for i in range(self.newcode.L**2):
             #we compute the coordinates in the new code
-            x=i%newcode.L
-            y=i/newcode.L
+            x=i%self.newcode.L
+            y=i/self.newcode.L
             #then find the index of the equivalent from the original
             newi=2*x+2*y*self.L
             #and store it
-            newcode.s[i]=self.s[newi]
+            self.newcode.s[i]=self.s[newi]
             
             
             
         #we need to change the corner syndromes according to the correction
-        nL=newcode.L
+        nL=self.newcode.L
         
         nsx0=[0,1,0]
         nsy0=[0,0,1]
@@ -1023,7 +1026,7 @@ class ColorCode:
                     xn=(x+nsx1[j])%nL
                     yn=(y+nsy1[j])%nL
                 ins=xn+yn*nL    
-                newcode.s[ins]=(newcode.s[ins]+self.cells[i].corr[nq[j]])%2
+                self.newcode.s[ins]=(self.newcode.s[ins]+self.cells[i].corr[nq[j]])%2
                     
                     
         
@@ -1036,13 +1039,13 @@ class ColorCode:
             plt.title("Correction at this level before rescaling")
             
             
-        newcode.hardDecoder(plotall=plotall,fignum=fignum)
+        self.newcode.hardDecoder(plotall=plotall,fignum=fignum)
         
         # TRANSLATING THE CORRECTION TO OUR CODE
-        for i in range(len(newcode.c)):
+        for i in range(len(self.newcode.c)):
             #if there is a correction in the qubit i in the 
             #rescaled version
-            if newcode.c[i]==1:
+            if self.newcode.c[i]==1:
                 #then we apply a logical operator to the corresponding cell
                 inds=self.cells[i].q
                 self.c[inds[0]]=(self.c[inds[0]]+1)%2

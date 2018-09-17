@@ -102,7 +102,7 @@ plt.legend()
 
 #%%
 
-
+#changes in split with number of iterations
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -114,34 +114,47 @@ import copy
 
 p=0.01
 nmeas=1000
-m=2
-nsteps=15
-
-code=ColorCode(m,p)
-code.noise()
-code.syndrome()
-change=code.softresplitcoordinate(nsteps)
-
-
-for k in range(nmeas-1):
-    
-    code=ColorCode(m,p)
-    code.noise()
-    code.syndrome()
-    change+=code.softresplitcoordinate(nsteps)
-
-change/=nmeas
+nsteps=20
 
 plt.figure(2)
 plt.clf()
-plt.title("Changes in p(split) with every step, p="+str(p))
-plt.plot(change,'p-')
 
 plt.figure(3)
 plt.clf()
-plt.title("Changes in p(split) with every step,logscale")
-plt.plot(np.log(change),'p-')
+for m in range(1,5):
+        
+    code=ColorCode(m,p)
+    code.noise()
+    code.syndrome()
+    change=code.softresplitcoordinate(nsteps)
+    
+    
+    for k in range(nmeas-1):
+        
+        code=ColorCode(m,p)
+        code.noise()
+        code.syndrome()
+        change+=code.softresplitcoordinate(nsteps)
+    
+    change/=nmeas
 
+
+    
+    plt.figure(2)
+    plt.plot(change,'p-', label=str(m))
+    plt.figure(3)
+    plt.plot(np.log(change),'p-', label=str(m))
+    
+
+
+
+
+plt.figure(2)
+plt.title("Changes in p(split) with every step, p="+str(p))
+plt.legend()
+plt.figure(3)
+plt.title("Changes in p(split) with every step,logscale")
+plt.legend()
 
 
 
