@@ -21,7 +21,7 @@ size=int(sys.argv[3])
 p1=float(sys.argv[4])
 p2=float(sys.argv[5])
 
-code=ColorCode(1,.08)
+#code=ColorCode(1,.08)
 
 P=np.linspace(p1,p2,nsteps)
 startime=time.time()

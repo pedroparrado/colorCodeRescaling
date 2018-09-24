@@ -183,7 +183,7 @@ class ColorCode:
         
         
         
-        self.newcode=ColorCode(self.m-1,0.)
+        self.newcode=ColorCode(self.max(m-1,0),0.)
         
         
     def checkLogError(self):
@@ -732,13 +732,13 @@ class ColorCode:
         
         pqs=np.zeros((4,2))
         #note the change in notation
-        #the max( * ,1e-12) are there to secure there are no 0's 
-        pqs[0,0]=max(1.-max(self.p[self.cells[cellid].q[0]],1e-12),1e-12)
-        pqs[1,0]=max(1.-max(self.p[self.cells[cellid].q[2]],1e-12),1e-12)
-        pqs[2,0]=max(1.-max(self.p[self.cells[cellid].q[3]],1e-12),1e-12)
-        pqs[3,0]=max(1.-max(self.p[self.cells[cellid].q[1]],1e-12),1e-12)
+        #the max( * ,1e-10) are there to secure there are no 0's 
+        pqs[0,0]=max(1.-max(self.p[self.cells[cellid].q[0]],1e-10),1e-10)
+        pqs[1,0]=max(1.-max(self.p[self.cells[cellid].q[2]],1e-10),1e-10)
+        pqs[2,0]=max(1.-max(self.p[self.cells[cellid].q[3]],1e-10),1e-10)
+        pqs[3,0]=max(1.-max(self.p[self.cells[cellid].q[1]],1e-10),1e-10)
         for i in range(4):
-            pqs[i,1]=max(1.-max(pqs[i,0],1e-12),1e-12)
+            pqs[i,1]=max(1.-max(pqs[i,0],1e-10),1e-10)
         if plotall:
             print pqs
         
@@ -1269,15 +1269,15 @@ class ColorCode:
         
         
         #the factors p(s1), p(s2),p(s1'),p(s2')
-        p=min(max(self.sp[is1],1e-12),1.-1e-12)
+        p=min(max(self.sp[is1],1e-10),1.-1e-10)
         assert p<=1.001 and p>=0, 'incorrect value of p '+str(p)+' '+str(is1)
         ps1=np.array(  [p,  p,1-p,1-p])
-        p=min(max(self.sp[is2],1e-12)  ,1.-1e-12)  
+        p=min(max(self.sp[is2],1e-10)  ,1.-1e-10)  
         assert p<=1.001 and p>=0, 'incorrect value of p '+str(p)+' '+str(is2)
         ps2=np.array(  [p,1-p,  p,1-p])
-        p=min(max(self.sp[is1p],1e-12),1.-1e-12)
+        p=min(max(self.sp[is1p],1e-10),1.-1e-10)
         ps1p=np.array( [p,  p,1-p,1-p])
-        p=min(max(self.sp[is2p],1e-12),1.-1e-12)
+        p=min(max(self.sp[is2p],1e-10),1.-1e-10)
         ps2p=np.array( [p,1-p,  p,1-p])
                         
         psu3=np.zeros(4)
@@ -1309,27 +1309,27 @@ class ColorCode:
             sv[s2]=(sv2+cs2[j])%2     
             
             sv[st]=su#value for which we have p(s0)
-            psu3[j] =min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]) ,1e-12),1.-1e-12)
+            psu3[j] =min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]) ,1e-10),1.-1e-10)
             if printthings:
                 print "j ",j
                 print s1,s2,st
                 print sv
             sv[st]=1#always one
-            psu13[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
+            psu13[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-10),1.-1e-10)
             sv[st]=0#always 0
-            psu03[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
+            psu03[j]=min(max(  self.p3(self.cells[icu],sv[0],sv[1],sv[2]),1e-10),1.-1e-10)
             #same for the probability in the other cell
             sv[s1]=(sv1p+cs1[j])%2
             sv[s2]=(sv2p+cs2[j])%2     
             
             sv[st]=sd
-            psd3[j] =min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
+            psd3[j] =min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-10),1.-1e-10)
             if printthings:
                 print sv
             sv[st]=1
-            psd13[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
+            psd13[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-10),1.-1e-10)
             sv[st]=0
-            psd03[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-12),1.-1e-12)
+            psd03[j]=min(max(  self.p3(self.cells[icd],sv[0],sv[1],sv[2]),1e-10),1.-1e-10)
         
         psu=np.sum(psu3*ps1 *ps2 /(psu13+psu03))        
         psd=np.sum(psd3*ps1p*ps2p/(psd13+psd03))
@@ -1354,8 +1354,8 @@ class ColorCode:
         p1=1.
         p2=1.
         for i in range(4):  #we compute p(s0s1s2)
-            p1*=min(max(self.pq(self.p[qubits[i]],sol[0][i]),1e-12),1-1e-12)
-            p2*=min(max(self.pq(self.p[qubits[i]],sol[1][i]),1e-12),1-1e-12)
+            p1*=min(max(self.pq(self.p[qubits[i]],sol[0][i]),1e-10),1-1e-10)
+            p2*=min(max(self.pq(self.p[qubits[i]],sol[1][i]),1e-10),1-1e-10)
         return p1+p2
     
     #probability p(s0 | s1s2)  #the ind choose which one is in the front
@@ -1447,7 +1447,7 @@ class ColorCode:
         pd=self.pc3(celld,svd[0],svd[1],svd[2],inds)
           
         #then the final probability is:
-        return min(max(pu*pd/(pu*pd+ (1-pu)*(1-pd)),1e-12),1-1e-12)
+        return min(max(pu*pd/(pu*pd+ (1-pu)*(1-pd)),1e-10),1-1e-10)
             
                 
     
