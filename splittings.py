@@ -137,13 +137,14 @@ for m in range(1,5):
         change+=code.softresplitcoordinate(nsteps)
     
     change/=nmeas
+    change/=code.N
 
 
     
     plt.figure(2)
     plt.plot(change,'p-', label=str(m))
     plt.figure(3)
-    plt.plot(np.log(change),'p-', label=str(m))
+    plt.plot(np.log10(change),'p-', label=str(m))
     
 
 

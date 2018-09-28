@@ -182,8 +182,8 @@ class ColorCode:
         self.ssoft=[]
         
         
-        
-        self.newcode=ColorCode(self.max(m-1,0),0.)
+        if m>0:
+            self.newcode=ColorCode(max(m-1,0),0.)
         
         
     def checkLogError(self):
@@ -700,10 +700,12 @@ class ColorCode:
             #apply the best option
             if p0>p1:
                 self.cells[i].corr=list(options[0])
-                self.cells[i].pe=p1/(p0+p1)
+                if not softRescProb:
+                    self.cells[i].pe=p1/(p0+p1)
             else:
                 self.cells[i].corr=list(options[1])
-                self.cells[i].pe=p0/(p0+p1)
+                if not softRescProb:
+                    self.cells[i].pe=p0/(p0+p1)
                 
             if softRescProb:
                 self.cells[i].pe=self.cellSoftRescale(self.cells[i].corr,i,plotall)
