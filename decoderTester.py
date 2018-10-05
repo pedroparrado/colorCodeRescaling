@@ -56,7 +56,7 @@ for i in range(nsteps):
             dt=dt*(1.-currentstep)
             print "Time to finish: "+str(dt/60.)+"min, "+str(dt/3600.)+"h"
             print "---------------------------------------------------------"
-E/=niter
+E/=Niter
 totaltime=time.time()-startime
 print "Total time: "+str(totaltime)+"s, "+str(totaltime/60.)+"min, "+str(totaltime/3600.)+"h"
 

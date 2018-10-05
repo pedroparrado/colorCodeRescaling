@@ -22,14 +22,11 @@ code.hardDecoder(softsplit=True,plotall=True)
    
     
 #%%    
-
-code=ColorCode(1,.1)
+p=.07
+#code=ColorCode(2,p)
 plt.figure(1)
 plt.clf()
-code.noise()
-code.syndrome()
-code.hardDecoder()
-code.plot()
+code.simulation(p,plotall=True)
      
 
 

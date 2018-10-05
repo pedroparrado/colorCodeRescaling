@@ -204,7 +204,7 @@ class ColorCode:
             r=np.random.rand()
             if r<self.p[i]:
                 self.e[i]=1
-    def syndrome(self):
+    def syndrome(self,withc=False):
         #coordinates of the neighbors
         nx=[0,-1,-1,-1, 0, 0]
         ny=[0, 0, 0,-1,-1,-1]
@@ -220,6 +220,8 @@ class ColorCode:
                 z=nz[j]
                 iq=x*2+y*2*L+z
                 val+=self.e[iq]
+                if withc:
+                    val+=self.c[iq]
             self.s[i]=val%2
     def stabilizerneighbors(self,i):
         #coordinates of the neighbors
@@ -585,20 +587,27 @@ class ColorCode:
         #soft splitting procedure
         
         pchanges=np.zeros(nsteps)
+        maxchanges=np.zeros(nsteps)
         spcopy= np.array(self.sp)
         
         for k in range(nsteps):
             spcopy= np.array(self.sp)
-            #ordered updates               
+            #ordered updates  
+            maxnow=0.             
             for s in sptoupdate:
                 spcopy[s]=self.pupdate(s)#splitprobability
-                pchanges[k]+=np.abs(spcopy[s]-self.sp[s])
+                change=np.abs(spcopy[s]-self.sp[s])
+                pchanges[k]+=change
+                if change>maxnow:
+                    maxnow=change
                 
                 if meanvalue and k==(nsteps-1):
                     spcopy[s]=(spcopy[s]+self.sp[s])/2.
             
             for s in sptoupdate:
                 self.sp[s]=spcopy[s] 
+            
+            maxchanges[k]=maxnow
                 
         #splitting assignment                
         for s in sptoupdate:
@@ -612,7 +621,7 @@ class ColorCode:
             if prob>0.499 and prob <0.501:
                 self.split[s]=np.random.randint(0,2)
             
-        return pchanges      
+        return pchanges,maxchanges  
     
     
     def singlesoftresplit(self,s):
@@ -1057,6 +1066,11 @@ class ColorCode:
         if plotall:
             plt.figure(-self.m+fignum)
             plt.clf()
+            self.syndrome(True)
+            for iq in range(len(self.e)):
+                if self.e[iq]==1 and self.c[iq]==1:
+                    self.e[iq]=0
+                    self.c[iq]=0
             self.plot(splitting=True, cells=False)
             if res==0:
                 resulttext="Success: "+str(loger)
@@ -1715,10 +1729,7 @@ class ColorCode:
                 plt.plot(x+.15,y,color="black",marker=md, markersize=6)
                 plt.plot(x+.15,y,color="yellow",marker=md, markersize=8)
         return ""
-    
-    def simulation(self,per=-1,method=6,corners=True,softRescale=True):
-        if per==-1:
-            per=self.p[0]
+    def clearcode(self,per):
         
         #initialization again
         for i in range(len(self.p)):
@@ -1726,6 +1737,16 @@ class ColorCode:
             self.e[i]=0
             self.c[i]=0
         self.s=[0]*(self.L**2)
+        
+        if self.m>0:
+            self.newcode.clearcode(per)
+        
+    def simulation(self,per=-1,method=6,corners=True,softRescale=True,plotall=False):
+        if per==-1:
+            per=self.p[0]
+        
+        #initialization again
+        self.clearcode(per)
             
         #noise
         self.noise()
@@ -1733,7 +1754,59 @@ class ColorCode:
         self.syndrome()
         
         #decoder
-        return self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale)
+        return self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale,plotall=plotall)
+        
+
+    def simulation8(self,per=-1,method=6,corners=True,softRescale=True,plotall=False):
+        if per==-1:
+            per=self.p[0]
+        
+        #initialization again
+        self.clearcode(per)
+            
+        #noise
+        self.noise()
+        
+        error=[]
+        for i in range(len(self.e)):
+            if self.e[i]==1:
+                error.append[i]
+        L=self.L
+        #8 types of change for the 8 positions in the cells
+        change=[0,1,2,3,L,L+1,L+2,L+3]
+        
+        solved=np.zeros(len(change))
+        ncorr=np.zeros(len(change))
+        #we will run the decoder for every option
+        mincor=self.N
+        anysolved=1
+        bestclist=[]
+        for k in range(len(change)):
+            self.clearcode(per)
+            #first we setup the errors
+            for er in error:
+                self.e[(er+change[k])%self.N]
+            #then proceed with the decoding process as usual
+            self.syndrome()
+            solved[k]=self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale,plotall=plotall)
+            ncorr[k]=sum(self.c)
+            #if there is more than one case with the same amount of corrections
+            if ncorr[k]==mincor:
+                bestcl.append(solved[k])
+            
+            if ncorr[k]<mincor:
+                mincor=ncorr[k]
+                bestcl=[solved[k]]
+            
+        #final output
+        #average of the best
+        bestc=sum(bestcl)*1./len(bestcl)
+        #best result
+        anysolved=min(solved)        
+        #normal: result from the using 1 method         
+        normal=solved[0]
+        
+        return bestc,anysolved,normal,ncorr,solved,bestcl
         
 
             

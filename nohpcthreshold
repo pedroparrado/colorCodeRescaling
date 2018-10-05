@@ -1,10 +1,11 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug  2 16:27:17 2018
+Created on Wed Oct  3 11:44:10 2018
 
 @author: pedro
 """
+
 
 
 import numpy as np
@@ -15,11 +16,11 @@ import sys
 import os
 
 
-nsteps=int(sys.argv[1])
-Niter=int(sys.argv[2])
-size=int(sys.argv[3])
-p1=float(sys.argv[4])
-p2=float(sys.argv[5])
+nsteps=10
+Niter=1000
+size=2
+p1=0.03
+p2=0.08
 
 #code=ColorCode(1,.08)
 
@@ -109,5 +110,21 @@ for j in range(Niter):
         startime=time.time()
 
         
+E/=Niter
+t/=Niter
+
+
+
+methodtext=''
+
+filen="./results/ccv"+str(size)+"Nit"+str(Niter)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+methodtext+".txt"
+
+
+f=open(filen,"w")
+for i in range(len(P)):
+    f.write(str(P[i])+" "+str(E[i])+" "+str(Epartial[i,0])+" "+str(Epartial[i,1])+" "+str(Epartial[i,2])+" "+str(Epartial[i,3])+" "+str(t[i])+"\n")
+f.close()
+
+
 
 

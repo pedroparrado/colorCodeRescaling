@@ -1,8 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
-Created on Thu Aug  2 16:27:17 2018
+Created on Fri Apr 20 15:48:23 2018
 
+Tester for the method with 8 different decoding processes
 @author: pedro
 """
 
@@ -21,7 +22,6 @@ size=int(sys.argv[3])
 p1=float(sys.argv[4])
 p2=float(sys.argv[5])
 
-#code=ColorCode(1,.08)
 
 P=np.linspace(p1,p2,nsteps)
 startime=time.time()
@@ -33,20 +33,24 @@ Ep500=np.zeros((nsteps,4))
 t500=np.zeros(nsteps)
 code=ColorCode(size,P[0])
 
-
+loger=np.zeros(4)
 eold=np.zeros((nsteps,4))
 startime=time.time()
 for j in range(Niter):
     for i in range(nsteps):
         dt=time.time()
         p=P[i]
-        res,loger=code.simulation(p)
-        E[i]+=res
+        bestc,anysolved,normal,ncorr,solved,bestcl=code.simulation8(p)
+        E[i]+=bestc
+        loger[0]=anysolved
+        loger[1]=normal
+        loger[2]=(max(ncorr)-min(ncorr))*1. /max(ncorr)
+        loger[3]=max(bestcl)-min(bestcl)
         for k in range(4):
             Epartial[i,k]+=loger[k]
             Ep500[i,k]+=loger[k]
         t[i]+=time.time()-dt
-        E500[i]+=res
+        E500[i]+=bestc
         t500[i]+=time.time()-dt
         
     #500 iterations security save
@@ -54,9 +58,9 @@ for j in range(Niter):
         totaltime=time.time()-startime
         niter500=500
         niterold=500
-        #save current progress
+        
         #filename of the temporal progress save
-        filen="./results/colcodem"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+".txt"
+        filen="./results/cc8m"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+".txt"
         
         #check if there is an already existing file
         if(os.path.isfile(filen)):
@@ -107,7 +111,4 @@ for j in range(Niter):
         Ep500=np.zeros((nsteps,4))
         t500=np.zeros(nsteps)
         startime=time.time()
-
-        
-
 

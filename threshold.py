@@ -14,8 +14,8 @@ import time
 from colorCodeh import *
 
 nsteps=10
-Niter=1500
-nsizes=5
+Niter=140
+nsizes=3
 
 nmin=[3,7,15,31,63,127,255]
 

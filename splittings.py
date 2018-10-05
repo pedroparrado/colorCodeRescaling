@@ -126,7 +126,7 @@ for m in range(1,5):
     code=ColorCode(m,p)
     code.noise()
     code.syndrome()
-    change=code.softresplitcoordinate(nsteps)
+    change,mchange=code.softresplitcoordinate(nsteps)
     
     
     for k in range(nmeas-1):
@@ -134,9 +134,12 @@ for m in range(1,5):
         code=ColorCode(m,p)
         code.noise()
         code.syndrome()
-        change+=code.softresplitcoordinate(nsteps)
+        nchange,nmchange=code.softresplitcoordinate(nsteps)
+        change+=nchange
+        mchange+=nmchange
     
     change/=nmeas
+    mchange/=nmeas
     change/=code.N
 
 
@@ -154,6 +157,14 @@ plt.figure(2)
 plt.title("Changes in p(split) with every step, p="+str(p))
 plt.legend()
 plt.figure(3)
+plt.title("Changes in p(split) with every step,logscale")
+plt.legend()
+
+
+plt.figure(4)
+plt.title("Changes in p(split) with every step, p="+str(p))
+plt.legend()
+plt.figure(5)
 plt.title("Changes in p(split) with every step,logscale")
 plt.legend()
 
