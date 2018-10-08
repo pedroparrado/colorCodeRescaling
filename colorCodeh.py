@@ -1757,7 +1757,16 @@ class ColorCode:
         return self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale,plotall=plotall)
         
 
-    def simulation8(self,per=-1,method=6,corners=True,softRescale=True,plotall=False):
+    def simulationMulti(self,per=-1,method=6,corners=True,softRescale=True,plotall=False):
+        '''
+        This function simulates an error event and applies the decoder, then checks
+        if the error was solved. The difference between this function and simulation() is:
+        for each error set in the code, we are going to apply the decoder using multiple grids
+        we decide which correction is best by counting the number of single qubit corrections
+        applied. This method of choice is bad, because it does not take into account the 
+        fact that stabilizers here count as 6 errors but have no effect in the code.
+        Further improvement has to be done to find the best correction.
+        '''
         if per==-1:
             per=self.p[0]
         
@@ -1771,16 +1780,16 @@ class ColorCode:
         for i in range(len(self.e)):
             if self.e[i]==1:
                 error.append[i]
-        L=self.L
+        L=self.L*2
         #8 types of change for the 8 positions in the cells
-        change=[0,1,2,3,L,L+1,L+2,L+3]
+        change=[0,2,4,6,L,L+2,L+4,L+6,2*L,2*L+2,2*L+4,2*L+6,3*L,3*L+2,3*L+4,3*L+6]
         
         solved=np.zeros(len(change))
         ncorr=np.zeros(len(change))
         #we will run the decoder for every option
         mincor=self.N
         anysolved=1
-        bestclist=[]
+        bestcl=[]
         for k in range(len(change)):
             self.clearcode(per)
             #first we setup the errors
