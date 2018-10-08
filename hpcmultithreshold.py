@@ -3,7 +3,9 @@
 """
 Created on Fri Apr 20 15:48:23 2018
 
-Tester for the method with 8 different decoding processes
+Tester for the decoder method with multiple different decoding processes
+the output is a file with the following results:
+    
 @author: pedro
 """
 
