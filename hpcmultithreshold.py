@@ -42,11 +42,11 @@ for j in range(Niter):
     for i in range(nsteps):
         dt=time.time()
         p=P[i]
-        bestc,anysolved,normal,ncorr,solved,bestcl=code.simulation8(p)
+        bestc,anysolved,normal,ncorr,solved,bestcl=code.simulationMulti(p)
         E[i]+=bestc
         loger[0]=anysolved
         loger[1]=normal
-        loger[2]=(max(ncorr)-min(ncorr))*1. /max(ncorr)
+        loger[2]=(max(ncorr)-min(ncorr))*1. /max(max(ncorr),1)
         loger[3]=max(bestcl)-min(bestcl)
         for k in range(4):
             Epartial[i,k]+=loger[k]
@@ -54,12 +54,13 @@ for j in range(Niter):
         t[i]+=time.time()-dt
         E500[i]+=bestc
         t500[i]+=time.time()-dt
-        
-    #500 iterations security save
-    if (j+1)%500==0 and j>0:
+    
+    nsave=[150,100,20,10,5,5,5,5][m-1]
+    # #iterations for security save (depending on size of the code)
+    if (j+1)%nsave==0 and j>0:
         totaltime=time.time()-startime
-        niter500=500
-        niterold=500
+        niter500=nsave
+        niterold=nsave
         
         #filename of the temporal progress save
         filen="./results/multiccm"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+".txt"

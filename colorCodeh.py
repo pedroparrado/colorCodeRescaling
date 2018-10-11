@@ -1779,7 +1779,7 @@ class ColorCode:
         error=[]
         for i in range(len(self.e)):
             if self.e[i]==1:
-                error.append[i]
+                error.append(i)
         L=self.L*2
         #8 types of change for the 8 positions in the cells
         change=[0,2,4,6,L,L+2,L+4,L+6,2*L,2*L+2,2*L+4,2*L+6,3*L,3*L+2,3*L+4,3*L+6]
@@ -1794,10 +1794,10 @@ class ColorCode:
             self.clearcode(per)
             #first we setup the errors
             for er in error:
-                self.e[(er+change[k])%self.N]
+                self.e[(er+change[k])%self.N]=1
             #then proceed with the decoding process as usual
             self.syndrome()
-            solved[k]=self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale,plotall=plotall)
+            solved[k],loger=self.hardDecoder(splitmethod=method,cornerupdate=corners,softRescaling=softRescale,plotall=plotall)
             ncorr[k]=sum(self.c)
             #if there is more than one case with the same amount of corrections
             if ncorr[k]==mincor:
