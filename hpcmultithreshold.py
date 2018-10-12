@@ -55,7 +55,7 @@ for j in range(Niter):
         E500[i]+=bestc
         t500[i]+=time.time()-dt
     
-    nsave=[150,100,20,10,5,5,5,5][m-1]
+    nsave=[150,100,20,10,5,5,5,5][size-1]
     # #iterations for security save (depending on size of the code)
     if (j+1)%nsave==0 and j>0:
         totaltime=time.time()-startime
