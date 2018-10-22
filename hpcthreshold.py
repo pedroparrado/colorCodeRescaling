@@ -40,7 +40,7 @@ for j in range(Niter):
     for i in range(nsteps):
         dt=time.time()
         p=P[i]
-        res,loger=code.simulation(p)
+        res,loger=code.simulation(p,double=3)
         E[i]+=res
         for k in range(4):
             Epartial[i,k]+=loger[k]
@@ -49,14 +49,14 @@ for j in range(Niter):
         E500[i]+=res
         t500[i]+=time.time()-dt
         
-    #500 iterations security save
-    if (j+1)%500==0 and j>0:
+    #100 iterations security save
+    if (j+1)%100==0 and j>0:
         totaltime=time.time()-startime
-        niter500=500
-        niterold=500
+        niter500=100
+        niterold=100
         #save current progress
         #filename of the temporal progress save
-        filen="./results/colcodem"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+".txt"
+        filen="./results/cctriplem"+str(size)+"ns"+str(nsteps)+"p"+str(int(p1*100))+"to"+str(int(p2*100))+".txt"
         
         #check if there is an already existing file
         if(os.path.isfile(filen)):

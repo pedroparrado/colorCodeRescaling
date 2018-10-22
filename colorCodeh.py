@@ -541,7 +541,7 @@ class ColorCode:
     
     
     
-    def softresplitcoordinate(self, nsteps=8,meanvalue=True):
+    def softresplitcoordinate(self, nsteps=8,meanvalue=True,double=2):
         #print "Entering Softresplit coordinate"
         
         #setting up the initial values
@@ -589,26 +589,35 @@ class ColorCode:
         pchanges=np.zeros(nsteps)
         maxchanges=np.zeros(nsteps)
         spcopy= np.array(self.sp)
+        if double>1:                
+            pchanges=np.zeros(nsteps*double)
+            maxchanges=np.zeros(nsteps*double)
+        for kd in range(double):
+                
+            for k in range(nsteps):
+                spcopy= np.array(self.sp)
+                #ordered updates  
+                maxnow=0.             
+                for s in sptoupdate:
+                    spcopy[s]=self.pupdate(s)#splitprobability
+                    change=np.abs(spcopy[s]-self.sp[s])
+                    pchanges[k+kd*nsteps]+=change
+                    if change>maxnow:
+                        maxnow=change
+                    
+                    if meanvalue and k==(nsteps-1):
+                        spcopy[s]=(spcopy[s]+self.sp[s])/2.
+                
+                for s in sptoupdate:
+                    self.sp[s]=spcopy[s] 
+                
+                maxchanges[k+kd*nsteps]=maxnow
         
-        for k in range(nsteps):
-            spcopy= np.array(self.sp)
-            #ordered updates  
-            maxnow=0.             
-            for s in sptoupdate:
-                spcopy[s]=self.pupdate(s)#splitprobability
-                change=np.abs(spcopy[s]-self.sp[s])
-                pchanges[k]+=change
-                if change>maxnow:
-                    maxnow=change
-                
-                if meanvalue and k==(nsteps-1):
-                    spcopy[s]=(spcopy[s]+self.sp[s])/2.
+        '''
+        if double is active, we repeat the whole splitting update
+        '''
             
-            for s in sptoupdate:
-                self.sp[s]=spcopy[s] 
             
-            maxchanges[k]=maxnow
-                
         #splitting assignment                
         for s in sptoupdate:
             self.sp[s]=spcopy[s]
@@ -838,7 +847,7 @@ class ColorCode:
                 
                 
                 
-    def hardDecoder(self,splitmethod=6,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50,splitsteps=20):
+    def hardDecoder(self,splitmethod=6,softsplit=False,cornerupdate=True,softRescaling=True,plotall=False,fignum=0,beta=50,splitsteps=7,double=3):
         '''
         splitmethods:
         0 init0 hard splitting
@@ -939,7 +948,7 @@ class ColorCode:
             self.randomminsplit(splitsteps)
             
         if splitmethod==6:
-            self.softresplitcoordinate(splitsteps)
+            self.softresplitcoordinate(splitsteps,double)
             
     
             #   DECODING EACH CELL
